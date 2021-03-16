@@ -106,75 +106,75 @@ For example:<br>
 <tbody>
 <tr>
 <td>Amygdala_Left-Accessory-Basal-nucleus</td>
-<td>Left Accessory Basal nucleus</td>
+<td>Left accessory basal nucleus</td>
 </tr>
 <tr>
 <td>Amygdala_Left-Anterior-amygdaloid-area-AAA</td>
-<td>Left Anterior amygdaloid area AAA</td>
+<td>Left anterior amygdaloid area AAA</td>
 </tr>
 <tr>
 <td>Amygdala_Left-Basal-nucleus</td>
-<td>Left Basal nucleus</td>
+<td>Left basal nucleus</td>
 </tr>
 <tr>
 <td>Amygdala_Left-Central-nucleus</td>
-<td>Left Central nucleus</td>
+<td>Left central nucleus</td>
 </tr>
 <tr>
 <td>Amygdala_Left-Cortical-nucleus</td>
-<td>Left Cortical nucleus</td>
+<td>Left cortical nucleus</td>
 </tr>
 <tr>
 <td>Amygdala_Left-Corticoamygdaloid-transitio</td>
-<td>Left Corticoamygdaloid transition</td>
+<td>Left corticoamygdaloid transition</td>
 </tr>
 <tr>
 <td>Amygdala_Left-Lateral-nucleus</td>
-<td>Left Lateral nucleus</td>
+<td>Left lateral nucleus</td>
 </tr>
 <tr>
 <td>Amygdala_Left-Medial-nucleus</td>
-<td>Left Medial nucleus</td>
+<td>Left medial nucleus</td>
 </tr>
 <tr>
 <td>Amygdala_Left-Paralaminar-nucleus</td>
-<td>Left Paralaminar nucleus</td>
+<td>Left paralaminar nucleus</td>
 </tr>
 <tr>
 <td>Amygdala_Right-Accessory-Basal-nucleus</td>
-<td>Right Accessory Basal nucleus</td>
+<td>Right accessory basal nucleus</td>
 </tr>
 <tr>
 <td>Amygdala_Right-Anterior-amygdaloid-area-AAA</td>
-<td>Right Anterior amygdaloid area AAA</td>
+<td>Right anterior amygdaloid area AAA</td>
 </tr>
 <tr>
 <td>Amygdala_Right-Basal-nucleus</td>
-<td>Right Basal nucleus</td>
+<td>Right basal nucleus</td>
 </tr>
 <tr>
 <td>Amygdala_Right-Central-nucleus</td>
-<td>Right Central nucleus</td>
+<td>Right central nucleus</td>
 </tr>
 <tr>
 <td>Amygdala_Right-Cortical-nucleus</td>
-<td>Right Cortical nucleus</td>
+<td>Right cortical nucleus</td>
 </tr>
 <tr>
 <td>Amygdala_Right-Corticoamygdaloid-transitio</td>
-<td>Right Corticoamygdaloid transition</td>
+<td>Right corticoamygdaloid transition</td>
 </tr>
 <tr>
 <td>Amygdala_Right-Lateral-nucleus</td>
-<td>Right Lateral nucleus</td>
+<td>Right lateral nucleus</td>
 </tr>
 <tr>
 <td>Amygdala_Right-Medial-nucleus</td>
-<td>Right Medial nucleus</td>
+<td>Right medial nucleus</td>
 </tr>
 <tr>
 <td>Amygdala_Right-Paralaminar-nucleus</td>
-<td>Right Paralaminar nucleus</td>
+<td>Right paralaminar nucleus</td>
 </tr>
 <tr>
 <td><strong>Hippocampus</strong></td>
