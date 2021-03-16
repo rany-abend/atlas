@@ -6,32 +6,32 @@
 <h1 id="subcortical-atlas">Subcortical atlas</h1>
 <h2 id="background">Background</h2>
 <p>These bash scripts generate an atlas of segmented subcortical structures by integrating a number of existing atlases and segmentation pipelines.<br>
-The segmented structures include (see table):</p>
+The segmented structures include:</p>
 <ul>
 <li><strong>Amygdala</strong> subnuclei (9 ROIs/hemisphere)<sup class="footnote-ref"><a href="#fn1" id="fnref1">1</a></sup></li>
 <li><strong>Hippocampus</strong> subfields (19 ROIs/hemisphere)<sup class="footnote-ref"><a href="#fn2" id="fnref2">2</a></sup></li>
-<li><strong>Thalamus</strong> subnuclei (23 ROIs/hemisphere)<sup class="footnote-ref"><a href="#fn3" id="fnref3">3</a></sup></li>
-<li><strong>Striatum</strong> (4 nuclei/hemisphere)<sup class="footnote-ref"><a href="#fn4" id="fnref4">4</a></sup></li>
+<li><strong>Thalamus</strong> subnuclei (24 ROIs/hemisphere)<sup class="footnote-ref"><a href="#fn3" id="fnref3">3</a></sup></li>
+<li><strong>Striatum</strong> nuclei (4 ROIs/hemisphere)<sup class="footnote-ref"><a href="#fn4" id="fnref4">4</a></sup></li>
 <li><strong>Hypothalamus</strong> (25 ROIs/hemisphere)<sup class="footnote-ref"><a href="#fn5" id="fnref5">5</a></sup></li>
 <li><strong>Midbrain/brainstem</strong> (9 ROIs)<sup class="footnote-ref"><a href="#fn6" id="fnref6">6</a></sup></li>
 <li><strong>Cerebellum</strong> (28 ROIs)<sup class="footnote-ref"><a href="#fn7" id="fnref7">7</a></sup></li>
 <li>Additionally: any of the <strong>Schaefer cortical parcellations</strong> (100-1000 parcels) can be downloaded and added to the atlas<sup class="footnote-ref"><a href="#fn8" id="fnref8">8</a></sup></li>
 </ul>
 <p>Individual ROIs can be flexibly combined into larger ROIs.<br>
-The generated atlas is in MNI152 space and comes in 3D and 4D versions.</p>
+The generated atlas is in MNI152 space<sup class="footnote-ref"><a href="#fn9" id="fnref9">9</a></sup> and comes in 3D and 4D versions.</p>
 <h2 id="usage">Usage</h2>
 <p>Create a local directory (ATLAS_DIR, hereafter), and download the four scripts into a “/code” directory within it.</p>
 <hr>
 <p><strong>SCRIPT 1: 01_get_and_isolate_ROIs.sh</strong><br>
 In this script, the user chooses which of the original atlases to download and process. When all the available atlases are processed, they include:</p>
 <ol>
-<li>FreeSurfer: the scripts then segments amygdala and hippocampus subnuclei (using segmentHA_T1.sh), thalamus subnuclei (using <a href="http://segmentThalamicNuclei.sh">segmentThalamicNuclei.sh</a>), and four strtiatal nuclei (using the original FreeSurfer segmentation).</li>
+<li>FreeSurfer: the script then segments amygdala and hippocampus subnuclei (using segmentHA_T1.sh), thalamus subnuclei (using <a href="http://segmentThalamicNuclei.sh">segmentThalamicNuclei.sh</a>), and four striatal nuclei (using the original FreeSurfer segmentation).</li>
 <li>Hypothalamus</li>
 <li>Midbrain/brainstem</li>
 <li>Cerebellum</li>
 <li>Additionally, the script is set up to download and process any of the Schaefer cortical parcellations.</li>
 </ol>
-<p><strong>User defines:</strong></p>
+<p><strong>User defines at top of script:</strong></p>
 <ol>
 <li>DOWNLOAD: whether to download source atlases (YES/NO; no need to download again if previously downloaded to ATLAS_DIR/source).</li>
 <li>DO_AAN, etc: which atlases to process.</li>
@@ -42,14 +42,14 @@ In this script, the user chooses which of the original atlases to download and p
 </ol>
 <p><strong>Script outputs:</strong></p>
 <ol>
-<li>Directories within ATLAS_DIR containing processed individual nii.gz files per ROI (see Table 1). These files are contained within a /isolated sub-directory in each atlas directory (e.g., <em>ATLAS_DIR/Amygdala/isolated/Amygdala_Left-Accessory-Basal-nucleus.nii.gz</em>, etc).</li>
+<li>Directories within ATLAS_DIR containing processed individual nii.gz files per ROI (see table below). These files are contained within a /isolated sub-directory in each atlas directory (e.g., <em>ATLAS_DIR/Amygdala/isolated/Amygdala_Left-Accessory-Basal-nucleus.nii.gz</em>, etc).</li>
 <li>A text file (saved in ATLAS_DIR/code, defined by SUBCORTICAL_LIST) listing all the processed subcortical ROIs.</li>
 <li>A text file (saved in ATLAS_DIR/code, defined by CORTICAL_LIST) listing all the processed cortical parcellations.</li>
 </ol>
 <hr>
 <p><strong>SCRIPT 2: 02_find_overlaps.sh</strong><br>
 Since the original atlases were created separately, there are some overlaps between them. This scripts identifies all overlaps.</p>
-<p><strong>User defines:</strong></p>
+<p><strong>User defines at top of script:</strong></p>
 <ol>
 <li>ATLAS_DIR: working directory.</li>
 <li>OVERLAP_FILE: name of overlap file to be created (can leave as default: ATLAS_DIR/code/overlaps.csv).</li>
@@ -62,7 +62,7 @@ Note that the next script removes this overlap by subtracting it from ROI1; the 
 <hr>
 <p><strong>SCRIPT 3: 03_remove_overlaps.sh</strong><br>
 This scripts removes the overlaps identified by the previous scripts.</p>
-<p><strong>User defines:</strong></p>
+<p><strong>User defines at top of script:</strong></p>
 <ol>
 <li>ATLAS_DIR: working directory.</li>
 <li>OVERLAP_FILE: name of the file listing all overlapping pairs of ROIs identified by script 02_find_overlaps.sh (comma-separated). In each pair, script removes overlap between ROI1 and ROI2 from ROI1.</li>
@@ -72,7 +72,7 @@ No outputs. The script modifies the individual ROI files in the relevant /isolat
 <hr>
 <p><strong>SCRIPT 4: 04_merge_ROIs.sh</strong><br>
 This scripts takes a user-defined text file specifying all ROIs to comprise the new atlas. These ROIs can include combinations of individual ROIs.</p>
-<p><strong>User defines:</strong></p>
+<p><strong>User defines at top of script:</strong></p>
 <ol>
 <li>ATLAS_DIR: working directory.</li>
 <li>ROI_FILE: name of user-defined text file specifying ROIs to include in new atlas (default: ATLAS_DIR/code/my_ROIs.txt). Each line should include one specified ROI. The syntax of each line is “roi_number:roi_name;roi1+roi2+roi3+…”, whereby roi_number is an integer defined by the user (note that for Schaefer parcels, these are automatically generated and occupy values 1000-2999); roi_name is a string name defined by the user; and roi1+roi2+roi3+… are individual ROI file names (created by script 01_get_and_isolate_ROIs.sh) combined into roi_name.<br>
@@ -80,21 +80,21 @@ For example:<br>
 –1008:Schaefer_Left-SomMotA-1:Schaefer_Left-SomMotA-1<br>
 –5142:Hypothalamus_Left-BNST:Hypothalamus_Left-BNST<br>
 –5243:Hypothalamus_Right-Midbrain:Hypothalamus_Right-STN+Hypothalamus_Right-SN+Hypothalamus_Right-RN+Hypothalamus_Right-ZI</li>
-<li>3d_ATLAS_NAME: name of the 3D nii.gz atlas file to be created.</li>
-<li>4d_ATLAS_NAME: name of the 4D nii.gz atlas file to be created.</li>
+<li>ATLAS_NAME_3D: name of the 3D nii.gz atlas file to be created.</li>
+<li>ATLAS_NAME_4D: name of the 4D nii.gz atlas file to be created.</li>
 <li>LUT_TABLE_NAME: name of the lookup table text file to be created, accompanying the atlas.</li>
 </ol>
 <p><strong>Script outputs:</strong></p>
 <ol>
-<li>A 3D atlas file (3d_ATLAS_NAME.nii.gz) in which all ROIs defined in ROI_FILE are in one volume. Each ROI has the number label defined in ROI_FILE.</li>
-<li>A 4D atlas file (4d_ATLAS_NAME.nii.gz) in which each ROI defined in ROI_FILE is in a separate, sequential volume. Each ROI value 1.</li>
+<li>A 3D atlas file (ATLAS_NAME_3D.nii.gz) in which all ROIs defined in ROI_FILE are in one volume. Each ROI has the number label defined in ROI_FILE.</li>
+<li>A 4D atlas file (ATLAS_NAME_4D.nii.gz) in which each ROI defined in ROI_FILE is in a separate, sequential volume. Each ROI value 1.</li>
 <li>A lookup table text file (LUT_TABLE_NAME.txt) defining the RGB color of each ROI in the atlas.</li>
 </ol>
 <hr>
 <p>These scripts require FSL and FreeSurfer 7 to be locally installed.</p>
 <h2 id="methods">Methods</h2>
 <h2 id="segmented-structures">Segmented structures</h2>
-<p>Labels and full names:</p>
+<p>Labels and full names of all segmented nuclei and subnuclei:</p>
 
 <table>
 <thead>
@@ -210,11 +210,11 @@ For example:<br>
 </tr>
 <tr>
 <td>Hippocampus_Left-GC-ML-DG-body</td>
-<td>Left GC ML DG body</td>
+<td>Left GC-ML-DG body</td>
 </tr>
 <tr>
 <td>Hippocampus_Left-GC-ML-DG-head</td>
-<td>Left GC ML DG head</td>
+<td>Left GC-ML-DG head</td>
 </tr>
 <tr>
 <td>Hippocampus_Left-HATA</td>
@@ -286,11 +286,11 @@ For example:<br>
 </tr>
 <tr>
 <td>Hippocampus_Right-GC-ML-DG-body</td>
-<td>Right GC ML DG body</td>
+<td>Right GC-ML-DG body</td>
 </tr>
 <tr>
 <td>Hippocampus_Right-GC-ML-DG-head</td>
-<td>Right GC ML DG head</td>
+<td>Right GC-ML-DG head</td>
 </tr>
 <tr>
 <td>Hippocampus_Right-HATA</td>
@@ -338,15 +338,15 @@ For example:<br>
 </tr>
 <tr>
 <td>Thalamus_Left-CeM</td>
-<td>Left Central medial nucleus</td>
+<td>Left central medial nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Left-CL</td>
-<td>Left Central lateral nucleus</td>
+<td>Left central lateral nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Left-CM</td>
-<td>Left Centromedian nucleus</td>
+<td>Left centromedian nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Left-LD</td>
@@ -354,75 +354,75 @@ For example:<br>
 </tr>
 <tr>
 <td>Thalamus_Left-LGN</td>
-<td>Left Lateral geniculate nucleus</td>
+<td>Left lateral geniculate nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Left-LP</td>
-<td>Left Lateral posterior nucleus</td>
+<td>Left lateral posterior nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Left-L-Sg</td>
-<td>Left Limitans nucleus</td>
+<td>Left limitans nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Left-MDl</td>
-<td>Left Mediodorsal lateral parvocellular nucleus</td>
+<td>Left mediodorsal lateral parvocellular nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Left-MDm</td>
-<td>Left Mediodorsal medial magnocellular nucleus</td>
+<td>Left mediodorsal medial magnocellular nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Left-MGN</td>
-<td>Left Medial Geniculate nucleus</td>
+<td>Left medial Geniculate nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Left-MV(Re)</td>
-<td>Left Reuniens (medial ventral) nucleus</td>
+<td>Left reuniens (medial ventral) nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Left-Pf</td>
-<td>Left Parafascicular nucleus</td>
+<td>Left parafascicular nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Left-PuA</td>
-<td>Left Pulvinar anterior nucleus</td>
+<td>Left pulvinar anterior nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Left-PuI</td>
-<td>Left Pulvinar inferior nucleus</td>
+<td>Left pulvinar inferior nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Left-PuL</td>
-<td>Left Pulvinar lateral nucleus</td>
+<td>Left pulvinar lateral nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Left-PuM</td>
-<td>Left Pulvinar medial nucleus</td>
+<td>Left pulvinar medial nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Left-VAmc</td>
-<td>Left Ventral anterior magnocellular nucleus</td>
+<td>Left ventral anterior magnocellular nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Left-VA</td>
-<td>Left Ventral anterior nucleus</td>
+<td>Left ventral anterior nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Left-VLa</td>
-<td>Left Ventral lateral anterior nucleus</td>
+<td>Left ventral lateral anterior nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Left-VLp</td>
-<td>Left Ventral lateral posterior nucleus</td>
+<td>Left ventral lateral posterior nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Left-VM</td>
-<td>Left Ventromedial nucleus</td>
+<td>Left ventromedial nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Left-VPL</td>
-<td>Left Ventral posterolateral nucleus</td>
+<td>Left ventral posterolateral nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Right-AV</td>
@@ -430,15 +430,15 @@ For example:<br>
 </tr>
 <tr>
 <td>Thalamus_Right-CeM</td>
-<td>Right Central medial nucleus</td>
+<td>Right central medial nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Right-CL</td>
-<td>Right Central lateral nucleus</td>
+<td>Right central lateral nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Right-CM</td>
-<td>Right Centromedian nucleus</td>
+<td>Right centromedian nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Right-LD</td>
@@ -446,79 +446,79 @@ For example:<br>
 </tr>
 <tr>
 <td>Thalamus_Right-LGN</td>
-<td>Right Lateral geniculate nucleus</td>
+<td>Right lateral geniculate nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Right-LP</td>
-<td>Right Lateral posterior nucleus</td>
+<td>Right lateral posterior nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Right-L-Sg</td>
-<td>Right Limitans nucleus</td>
+<td>Right limitans nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Right-MDl</td>
-<td>Right Mediodorsal lateral parvocellular nucleus</td>
+<td>Right mediodorsal lateral parvocellular nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Right-MDm</td>
-<td>Right Mediodorsal medial magnocellular nucleus</td>
+<td>Right mediodorsal medial magnocellular nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Right-MGN</td>
-<td>Right Medial Geniculate nucleus</td>
+<td>Right medial Geniculate nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Right-MV(Re)</td>
-<td>Right Reuniens (medial ventral) nucleus</td>
+<td>Right reuniens (medial ventral) nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Right-Pc</td>
-<td>Right Paracentral nucleus</td>
+<td>Right paracentral nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Right-Pf</td>
-<td>Right Parafascicular nucleus</td>
+<td>Right parafascicular nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Right-PuA</td>
-<td>Right Pulvinar anterior nucleus</td>
+<td>Right pulvinar anterior nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Right-PuI</td>
-<td>Right Pulvinar inferior nucleus</td>
+<td>Right pulvinar inferior nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Right-PuL</td>
-<td>Right Pulvinar lateral nucleus</td>
+<td>Right pulvinar lateral nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Right-PuM</td>
-<td>Right Pulvinar medial nucleus</td>
+<td>Right pulvinar medial nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Right-VAmc</td>
-<td>Right Ventral anterior magnocellular nucleus</td>
+<td>Right ventral anterior magnocellular nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Right-VA</td>
-<td>Right Ventral anterior nucleus</td>
+<td>Right ventral anterior nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Right-VLa</td>
-<td>Right Ventral lateral anterior nucleus</td>
+<td>Right ventral lateral anterior nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Right-VLp</td>
-<td>Right Ventral lateral posterior nucleus</td>
+<td>Right ventral lateral posterior nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Right-VM</td>
-<td>Right Ventromedial nucleus</td>
+<td>Right ventromedial nucleus</td>
 </tr>
 <tr>
 <td>Thalamus_Right-VPL</td>
-<td>Right Ventral posterolateral nucleus</td>
+<td>Right ventral posterolateral nucleus</td>
 </tr>
 <tr>
 <td><strong>Striatum</strong></td>
@@ -526,35 +526,35 @@ For example:<br>
 </tr>
 <tr>
 <td>Striatum_Left-Accumbens-area</td>
-<td>Left Accumbens area</td>
+<td>Left accumbens area</td>
 </tr>
 <tr>
 <td>Striatum_Left-Caudate</td>
-<td>Left Caudate</td>
+<td>Left caudate</td>
 </tr>
 <tr>
 <td>Striatum_Left-Pallidum</td>
-<td>Left Pallidum</td>
+<td>Left pallidum</td>
 </tr>
 <tr>
 <td>Striatum_Left-Putamen</td>
-<td>Left Putamen</td>
+<td>Left putamen</td>
 </tr>
 <tr>
 <td>Striatum_Right-Accumbens-area</td>
-<td>Right Accumbens area</td>
+<td>Right accumbens area</td>
 </tr>
 <tr>
 <td>Striatum_Right-Caudate</td>
-<td>Right Caudate</td>
+<td>Right caudate</td>
 </tr>
 <tr>
 <td>Striatum_Right-Pallidum</td>
-<td>Right Pallidum</td>
+<td>Right pallidum</td>
 </tr>
 <tr>
 <td>Striatum_Right-Putamen</td>
-<td>Right Putamen</td>
+<td>Right putamen</td>
 </tr>
 <tr>
 <td><strong>Hypothalamus</strong></td>
@@ -562,187 +562,187 @@ For example:<br>
 </tr>
 <tr>
 <td>Hypothalamus_Left-AC</td>
-<td>Left Anterior commissure</td>
+<td>Left anterior commissure</td>
 </tr>
 <tr>
 <td>Hypothalamus_Left-AHA</td>
-<td>Left Anterior hypothalamic area</td>
+<td>Left anterior hypothalamic area</td>
 </tr>
 <tr>
 <td>Hypothalamus_Left-AN</td>
-<td>Left Arcuate nucleus</td>
+<td>Left arcuate nucleus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Left-BNST</td>
-<td>Left Bed nucleus of the stria terminalis</td>
+<td>Left bed nucleus of the stria terminalis</td>
 </tr>
 <tr>
 <td>Hypothalamus_Left-dB</td>
-<td>Left Diagonal band of broca</td>
+<td>Left diagonal band of broca</td>
 </tr>
 <tr>
 <td>Hypothalamus_Left-DM</td>
-<td>Left Dorsomedial hypothalamic nucleus</td>
+<td>Left dorsomedial hypothalamic nucleus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Left-DPEH</td>
-<td>Left Dorsal periventricular nucleus</td>
+<td>Left dorsal periventricular nucleus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Left-FX</td>
-<td>Left Fornix</td>
+<td>Left fornix</td>
 </tr>
 <tr>
 <td>Hypothalamus_Left-ITP</td>
-<td>Left Inferior thalamic peduncle</td>
+<td>Left inferior thalamic peduncle</td>
 </tr>
 <tr>
 <td>Hypothalamus_Left-LH</td>
-<td>Left  Lateral hypothalamus</td>
+<td>Left lateral hypothalamus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Left-MM</td>
-<td>Left Mammillary bodies</td>
+<td>Left mammillary bodies</td>
 </tr>
 <tr>
 <td>Hypothalamus_Left-MPO</td>
-<td>Left Medial preoptic nucleus</td>
+<td>Left medial preoptic nucleus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Left-MT</td>
-<td>Left Mammillothalamic tract</td>
+<td>Left mammillothalamic tract</td>
 </tr>
 <tr>
 <td>Hypothalamus_Left-NBM</td>
-<td>Left Nucleus basalis of Meynert</td>
+<td>Left nucleus basalis of Meynert</td>
 </tr>
 <tr>
 <td>Hypothalamus_Left-Pa</td>
-<td>Left Paraventricular nucleus</td>
+<td>Left paraventricular nucleus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Left-Pe</td>
-<td>Left Periventricular nucleus</td>
+<td>Left periventricular nucleus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Left-PH</td>
-<td>Left Posterior hypothalamus</td>
+<td>Left posterior hypothalamus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Left-RN</td>
-<td>Left Red nucleus</td>
+<td>Left red nucleus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Left-SC</td>
-<td>Left Suprachiasmatic nucleus</td>
+<td>Left suprachiasmatic nucleus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Left-SN</td>
-<td>Left Substantia nigra</td>
+<td>Left substantia nigra</td>
 </tr>
 <tr>
 <td>Hypothalamus_Left-SO</td>
-<td>Left Supraoptic nucleus</td>
+<td>Left supraoptic nucleus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Left-STN</td>
-<td>Left Subthalamic nucleus</td>
+<td>Left subthalamic nucleus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Left-TM</td>
-<td>Left Tuberomammillary nucleus</td>
+<td>Left tuberomammillary nucleus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Left-VM</td>
-<td>Left Ventromedial hypothalamus</td>
+<td>Left ventromedial hypothalamus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Left-ZI</td>
-<td>Left Zona incerta</td>
+<td>Left zona incerta</td>
 </tr>
 <tr>
 <td>Hypothalamus_Right-AC</td>
-<td>Right Anterior commissure</td>
+<td>Right anterior commissure</td>
 </tr>
 <tr>
 <td>Hypothalamus_Right-AHA</td>
-<td>Right Anterior hypothalamic area</td>
+<td>Right anterior hypothalamic area</td>
 </tr>
 <tr>
 <td>Hypothalamus_Right-AN</td>
-<td>Right Arcuate nucleus</td>
+<td>Right arcuate nucleus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Right-BNST</td>
-<td>Right Bed nucleus of the stria terminalis</td>
+<td>Right bed nucleus of the stria terminalis</td>
 </tr>
 <tr>
 <td>Hypothalamus_Right-dB</td>
-<td>Right Diagonal band of broca</td>
+<td>Right diagonal band of broca</td>
 </tr>
 <tr>
 <td>Hypothalamus_Right-DM</td>
-<td>Right Dorsomedial hypothalamic nucleus</td>
+<td>Right dorsomedial hypothalamic nucleus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Right-DPEH</td>
-<td>Right Dorsal periventricular nucleus</td>
+<td>Right dorsal periventricular nucleus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Right-FX</td>
-<td>Right Fornix</td>
+<td>Right fornix</td>
 </tr>
 <tr>
 <td>Hypothalamus_Right-ITP</td>
-<td>Right Inferior thalamic peduncle</td>
+<td>Right inferior thalamic peduncle</td>
 </tr>
 <tr>
 <td>Hypothalamus_Right-LH</td>
-<td>Right  Lateral hypothalamus</td>
+<td>Right lateral hypothalamus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Right-MM</td>
-<td>Right Mammillary bodies</td>
+<td>Right mammillary bodies</td>
 </tr>
 <tr>
 <td>Hypothalamus_Right-MPO</td>
-<td>Right Medial preoptic nucleus</td>
+<td>Right medial preoptic nucleus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Right-MT</td>
-<td>Right Mammillothalamic tract</td>
+<td>Right mammillothalamic tract</td>
 </tr>
 <tr>
 <td>Hypothalamus_Right-NBM</td>
-<td>Right Nucleus basalis of Meynert</td>
+<td>Right nucleus basalis of Meynert</td>
 </tr>
 <tr>
 <td>Hypothalamus_Right-Pa</td>
-<td>Right Paraventricular nucleus</td>
+<td>Right paraventricular nucleus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Right-Pe</td>
-<td>Right Periventricular nucleus</td>
+<td>Right periventricular nucleus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Right-PH</td>
-<td>Right Posterior hypothalamus</td>
+<td>Right posterior hypothalamus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Right-RN</td>
-<td>Right Red nucleus</td>
+<td>Right red nucleus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Right-SC</td>
-<td>Right Suprachiasmatic nucleus</td>
+<td>Right suprachiasmatic nucleus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Right-SN</td>
-<td>Right Substantia nigra</td>
+<td>Right substantia nigra</td>
 </tr>
 <tr>
 <td>Hypothalamus_Right-SO</td>
-<td>Right Supraoptic nucleus</td>
+<td>Right supraoptic nucleus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Right-STN</td>
@@ -750,15 +750,15 @@ For example:<br>
 </tr>
 <tr>
 <td>Hypothalamus_Right-TM</td>
-<td>Right Tuberomammillary nucleus</td>
+<td>Right tuberomammillary nucleus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Right-VM</td>
-<td>Right Ventromedial hypothalamus</td>
+<td>Right ventromedial hypothalamus</td>
 </tr>
 <tr>
 <td>Hypothalamus_Right-ZI</td>
-<td>Right Zona incerta</td>
+<td>Right zona incerta</td>
 </tr>
 <tr>
 <td><strong>Midbrain/brainstem</strong></td>
@@ -766,11 +766,11 @@ For example:<br>
 </tr>
 <tr>
 <td>AAN_DR</td>
-<td>Dorsal raphe</td>
+<td>Dorsal raphe nucleus</td>
 </tr>
 <tr>
 <td>AAN_LC</td>
-<td>Locus coeruleus</td>
+<td>Locus coeruleus nucleus</td>
 </tr>
 <tr>
 <td>AAN_MRF</td>
@@ -778,7 +778,7 @@ For example:<br>
 </tr>
 <tr>
 <td>AAN_MR</td>
-<td>Median raphe</td>
+<td>Median raphe nucleus</td>
 </tr>
 <tr>
 <td>AAN_PAG</td>
@@ -790,7 +790,7 @@ For example:<br>
 </tr>
 <tr>
 <td>AAN_PO</td>
-<td>Pontis oralis</td>
+<td>Pontis oralis nucleus</td>
 </tr>
 <tr>
 <td>AAN_PPN</td>
@@ -917,8 +917,7 @@ For example:<br>
 <td>Vermis X</td>
 </tr>
 </tbody>
-</table><h2 id="figures">Figures</h2>
-<h2 id="references">References</h2>
+</table><h2 id="references">References</h2>
 <hr class="footnotes-sep">
 <section class="footnotes">
 <ol class="footnotes-list">
@@ -937,6 +936,8 @@ For example:<br>
 <li id="fn7" class="footnote-item"><p>A probabilistic MR atlas of the human cerebellum. Diedrichsen, J., Balsters, J.H., Flavell, J., Cussans, E., Ramnani, N. Neuroimage. 2009;46(1):39-46. <a href="#fnref7" class="footnote-backref">↩︎</a></p>
 </li>
 <li id="fn8" class="footnote-item"><p>Local-Global Parcellation of the Human Cerebral Cortex from Intrinsic Functional Connectivity MRI. Schaefer, A., Kong, R., Gordon, E.M., et al. Cereb Cortex. 2018;28(9):3095-3114. <a href="#fnref8" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn9" class="footnote-item"><p>Unbiased average age-appropriate atlases for pediatric studies. Fonov, V., Evans, A.C., Botteron, K., et al. Neuroimage. 2011;54(1):313-327. <a href="#fnref9" class="footnote-backref">↩︎</a></p>
 </li>
 </ol>
 </section>
