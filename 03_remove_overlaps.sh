@@ -1,18 +1,6 @@
 #!/bin/bash
 # The script removes subcortical-subcortical overlaps (between atlases)
-# and subcortical-cortical overlaps (between atlases and parcellation).
-
-#********** START DEFINING **************
-# Working directory
-ATLAS_DIR=/data/EDB/ExtRecall2/Common/templates/new_atlas_test
-
-# File listing all overlapping pairs of ROIs identified by 
-# script 02_find_overlaps.sh (comma-separated).
-# In each pair, script removes overlap between ROI1 and ROI2 from ROI1.
-OVERLAP_FILE=${ATLAS_DIR}/code/overlaps.csv
-#*********** END DEFINING ***************
-
-TEMP_DIR=${ATLAS_DIR}/temp
+# and subcortical-cortical overlaps (between atlases and parcellation, if used).
 
 # Number of overlaps to fix
 n_rois=$(cat ${OVERLAP_FILE} | wc -l)
