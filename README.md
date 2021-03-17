@@ -45,8 +45,8 @@ This file defines several constants that will be used by the scripts. The user s
 <li><strong>LUT_TABLE_NAME</strong>: name of the color lookup table to accompany the atlases to be created by <em>04_merge_ROIs.sh</em>.</li>
 </ol>
 <hr>
-<p><strong>SCRIPT 1: 01_get_and_isolate_ROIs.sh</strong><br>
-This script downloads (if chosen to) the source atlases from their original online locations. It then processes them: it registers them all to a common MNI152 space, and then isolates all ROIs in all atlases into individual nii.gz files.</p>
+<p><strong>SCRIPT 1: 01_get_and_isolate_ROIs.sh</strong></p>
+<p>This script downloads (if chosen to) the source atlases from their original online locations. It then processes them: it registers them all to a common MNI152 space, and then isolates all ROIs in all atlases into individual nii.gz files.</p>
 <p><strong>Script outputs:</strong></p>
 <ol>
 <li>Directories within <em>ROOTDIR/atlases/&lt;atlas_name&gt;/isolated</em> containing an individual nii.gz file in the common MNI space per ROI (see table below). E.g., <em>ROOTDIR/atlases/Amygdala/isolated/Amygdala_Left-Accessory-Basal-nucleus.nii.gz</em>.</li>
