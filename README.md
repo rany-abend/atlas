@@ -22,8 +22,8 @@ The generated atlas is in 1mm resolution in a standard MNI152 space (MNI152_T1_1
 <h2 id="usage">Usage</h2>
 <p>Create a local directory (ROOT_DIR, hereafter), and download the <strong>one source_this file</strong> and <strong>four scripts</strong>  into a “/code” directory within it.</p>
 <hr>
-<p><strong>SOURCE FILE: source_this.sh</strong><br>
-This file is to be sourced (i.e., using the <em>source</em> command) before running any of the scripts.<br>
+<p><strong>SOURCE FILE: source_this.sh</strong></p>
+<p>This file is to be sourced (using the <em>source</em> command) before running any of the scripts.<br>
 This file defines several constants that will be used by the scripts. The user should review and amend these as necessary. Their default values are specified when relevant.</p>
 <ol>
 <li><strong>ROOTDIR</strong>: working directory.</li>
