@@ -5,8 +5,8 @@
 
 <h1 id="subcortical-atlas">Subcortical atlas</h1>
 <h2 id="background">Background</h2>
-<p>These bash scripts generate an atlas of segmented subcortical structures by integrating a number of existing atlases and segmentation pipelines.<br>
-The segmented structures include:</p>
+<p>These bash scripts generate an atlas of subcortical structures by integrating a number of existing segmentations into a common standard space.<br>
+The segmented structures include (see full table below):</p>
 <ul>
 <li><strong>Amygdala</strong> subnuclei (9 ROIs/hemisphere)<sup class="footnote-ref"><a href="#fn1" id="fnref1">1</a></sup></li>
 <li><strong>Hippocampus</strong> subfields (19 ROIs/hemisphere)<sup class="footnote-ref"><a href="#fn2" id="fnref2">2</a></sup></li>
