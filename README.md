@@ -49,7 +49,7 @@ This file defines several constants that will be used by the scripts. The user s
 <p>This script downloads (if chosen to) the source atlases from their original online locations. It then processes them: it registers them all to a common MNI152 space, and then isolates all ROIs in all atlases into individual nii.gz files.</p>
 <p><strong>Script outputs:</strong></p>
 <ol>
-<li>Directories within <em>ROOTDIR/atlases/</em> containing an individual nii.gz file in the common MNI space per ROI (see table below). E.g., <em>ROOTDIR/atlases/Amygdala/isolated/Amygdala_Left-Accessory-Basal-nucleus.nii.gz</em>.</li>
+<li>Directories within ROOTDIR/atlases/ containing an individual nii.gz file in the common MNI space per ROI (see table below). E.g., <em>ROOTDIR/atlases/Amygdala/isolated/Amygdala_Left-Accessory-Basal-nucleus.nii.gz</em>.</li>
 <li>A text file (saved in ROOTDIR/code; name defined by SUBCORTICAL_LIST) listing all the processed subcortical ROIs.</li>
 <li>A text file (saved in ROOTDIR/code; name defined by CORTICAL_LIST) listing all the processed cortical parcels.</li>
 </ol>
