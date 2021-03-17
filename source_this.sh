@@ -8,10 +8,10 @@ TEMPLATE_T1=${FSLDIR}/data/standard/MNI152_T1_1mm_brain.nii.gz
 DOWNLOAD=NO
 
 # Which atlases to process in include in new atlas (YES/NO)?
-DO_AAN=YES		# Harvard Ascending Arousal Network (AAN; midbrain and brainstem) atlas (Edlow et al., 2012)
-DO_CEREBELLUM=YES	# Cerebellum atlas (Diedrichsen et al., 2009; copied from local FSL atlases directory)
 DO_HYPOTHALAMUS=YES	# Hypothalamus atlas (Neudorfer et al., 2020)
 DO_SUBFS=YES		# Amygdala, hippocampus, thalamus subnuclei; 4 striatal nuclei (Saygin et al., 2017; Iglesias et al., 2015, 2018)
+DO_AAN=YES		# Harvard Ascending Arousal Network (AAN; midbrain and brainstem) atlas (Edlow et al., 2012)
+DO_CEREBELLUM=YES	# Cerebellum atlas (Diedrichsen et al., 2009; copied from local FSL atlases directory)
 DO_SCHAEFER=YES		# Include Schaefer cortical parcellation (Schaefer et al., 2018)
 SCHAEFER_NUMNETS=17	# Which Shaefer parcellation: number of networks
 SCHAEFER_NUMPARC=100	# Which Shaefer parcellation: number of parcels

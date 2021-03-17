@@ -1,10 +1,9 @@
 #!/bin/bash
-# 1. Place this script and all other scripts in directory: ${ROOTDIR}/code
+# 1. Before running this script: place all scripts and source_this file in directory: ${ROOTDIR}/code
 # 2. Define all constants in ${ROOTDIR}/code/source_this.sh
 # 3. Run: source ${ROOTDIR}/code/source_this.sh
-# 4. Run this script
 
-# This script downloads (if chose to) source atlases from their orginial online locations.
+# This script downloads (if chose to) source atlases from their original online locations.
 # It then processes them (if chose to): it registers them all to a common MNI152 space, and
 # then isolates all ROIs in all atlases into individual nii.gz files.
 
@@ -58,7 +57,7 @@ if [[ ${DOWNLOAD} == "YES" ]] ; then
    # A probabilistic MR atlas of the human cerebellum.
    # Neuroimage. 2009;46(1):39-46.
    # https://dx.doi.org/10.1016/j.neuroimage.2009.01.045
-   # This atlas has good overlap with FSL's MNI162_1mm.
+   # This atlas has good overlap with FSL's MNI152_1mm.
    cp -pv ${FSLDIR}/data/atlases/Cerebellum/Cerebellum-MNIfnirt-maxprob-thr50-1mm.nii.gz .
    cp -pv ${FSLDIR}/data/atlases/Cerebellum_MNIfnirt.xml .
 

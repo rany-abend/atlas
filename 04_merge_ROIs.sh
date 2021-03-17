@@ -1,5 +1,5 @@
 #!/bin/bash
-# This script takes a list of ROIs from ROI_FILE, and creates the new atlas files.
+# This script takes a list of ROIs (code/ROI_FILE), and creates the new atlas files.
 
 # A volume of 0s.
 ${FSLDIR}/bin/fslmaths ${TEMPLATE_T1} -mul 0 ${TEMP_DIR}/zero
