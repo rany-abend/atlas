@@ -31,10 +31,10 @@ for ((r=1 ; r<=${n_rois} ; r++)) ; do
 
    # When combining multiple ROIs into one larger ROI
    for c in $(echo ${roi_comp} | (awk -F+ 'BEGIN {OFS="\n"} $1=$1 {print $0}')) ; do
-      roi_set=$( echo ${c} | awk -F_ '{print $1}')
-      roi_name=$(echo ${c} | awk -F_ '{print $2}')
-      echo "--Creating ROI ${roi_numb} from ${roi_set}_${roi_name}"
-      ${FSLDIR}/bin/fslmaths ${new_roi} -add ${ROOTDIR}/atlases/${roi_set}/isolated/${roi_set}_${roi_name} ${new_roi}
+      roi_cset=$(echo ${c} | awk -F_ '{print $1}')
+      roi_cnam=$(echo ${c} | awk -F_ '{print $2}')
+      echo "--Creating ROI ${roi_numb} from ${roi_cset}_${roi_cnam}"
+      ${FSLDIR}/bin/fslmaths ${new_roi} -add ${ROOTDIR}/atlases/${roi_cset}/isolated/${roi_cset}_${roi_cnam} ${new_roi}
    done
 
    # Init 4D atlas file with first ROI

@@ -414,4 +414,7 @@ else
    echo "Skipping cortical parcellation."
 fi
 
-echo "Done!"
+echo "============="
+echo "Summary:"
+if [[ ${DO_AAN} == "YES" ]] ; then
+   echo "Number of isolated files in processed AAN directory: $(ls -1 ${ROOTDIR}/atlases/AAN/isloated)|wc -l)."

@@ -1,11 +1,11 @@
 # Define root directory.
-ROOTDIR=/data/EDB/ExtRecall2/Common/templates/new_atlas_test
+ROOTDIR=/data/EDB/ExtRecall2/Atlas
 
 # Template T1 brain to register to.
 TEMPLATE_T1=${FSLDIR}/data/standard/MNI152_T1_1mm_brain.nii.gz
 
 # Download atlases sources (YES/NO)? No need to download again if sources are already in ROOTDIR/source.
-DOWNLOAD=NO
+DOWNLOAD=YES
 
 # Which atlases to process in include in new atlas (YES/NO)?
 DO_HYPOTHALAMUS=YES	# Hypothalamus atlas (Neudorfer et al., 2020)
@@ -37,5 +37,7 @@ LUT_TABLE_NAME=atlas_v1_LUT
 
 mkdir -p ${ROOTDIR}/temp
 TEMP_DIR=${ROOTDIR}/temp
+
+export ROOTDIR TEMPLATE_T1 DOWNLOAD DO_HYPOTHALAMUS DO_SUBFS DO_AAN DO_CEREBELLUM DO_SCHAEFER SCHAEFER_NUMNETS SCHAEFER_NUMPARC SUBCORTICAL_LIST CORTICAL_LIST OVERLAP_FILE ROI_FILE ATLAS_NAME_3D ATLAS_NAME_4D LUT_TABLE_NAME TEMP_DIR FSLDIR
 
 echo "Root directory is now: ${ROOTDIR}."
