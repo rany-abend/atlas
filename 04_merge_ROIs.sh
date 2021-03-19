@@ -9,6 +9,8 @@ new_atlas_3d=${ROOTDIR}/${ATLAS_NAME_3D}
 new_atlas_4d=${ROOTDIR}/${ATLAS_NAME_4D}
 ${FSLDIR}/bin/imcp ${TEMP_DIR}/zero ${new_atlas_3d}
 ${FSLDIR}/bin/imcp ${TEMP_DIR}/zero ${new_atlas_4d}
+echo "Creating 3D atlas: ${new_atlas_3d}"
+echo "Creating 4D atlas: ${new_atlas_4d}"
 
 # Init color lookup table
 my_atlas_LUT=${ROOTDIR}/${LUT_TABLE_NAME}.txt
@@ -33,7 +35,7 @@ for ((r=1 ; r<=${n_rois} ; r++)) ; do
    for c in $(echo ${roi_comp} | (awk -F+ 'BEGIN {OFS="\n"} $1=$1 {print $0}')) ; do
       roi_cset=$(echo ${c} | awk -F_ '{print $1}')
       roi_cnam=$(echo ${c} | awk -F_ '{print $2}')
-      echo "--Creating ROI ${roi_numb} from ${roi_cset}_${roi_cnam}"
+      echo "-- Creating ROI ${roi_numb} ${roi_name} from ${roi_cset}_${roi_cnam}"
       ${FSLDIR}/bin/fslmaths ${new_roi} -add ${ROOTDIR}/atlases/${roi_cset}/isolated/${roi_cset}_${roi_cnam} ${new_roi}
    done
 
@@ -51,7 +53,9 @@ for ((r=1 ; r<=${n_rois} ; r++)) ; do
    echo "${roi_numb} ${roi_name} $(( (${r}*3) % 255)) $(( (${r}*7) % 255)) $(( (${r}*11) % 255)) 0" >> ${my_atlas_LUT}
 done
 
-echo "Created new 3D atlas: ${new_atlas_3d}."
-echo "Created new 4D atlas: ${new_atlas_4d}."
+echo "============================="
+echo "Summary:"
+echo "== Created new 3D atlas: ${new_atlas_3d}."
+echo "== Created new 4D atlas: ${new_atlas_4d}."
 
 ${FSLDIR}/bin/imrm ${new_roi} ${TEMP_DIR}/zero

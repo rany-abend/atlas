@@ -47,4 +47,7 @@ for ((atlas1=1;atlas1<=${n_atlases};atlas1++)) ; do
    done
 done
 
-echo "Identified ${n_overlaps} overlaps; saved in ${OVERLAP_FILE}."
+echo "============================="
+echo "Summary:"
+echo "Identified ${n_overlaps} overlaps; saved in code/${OVERLAP_FILE}."
+echo "Ready to remove overlaps using 03_remove_overlaps.sh ."

@@ -359,7 +359,7 @@ if [[ ${DO_SUBFS} == "YES" ]] ; then
    done
 
    # Move remaining files that are not used to source directory so they will not be included in atlas
-   mv ${ROOTDIR}/atlases/FreeSurfer ${ROOTDIR}/source/
+   mv ${ROOTDIR}/atlases/FreeSurfer ${ROOTDIR}/source/processed
    
    sed -i "s/.nii.gz//" ${SUBCORTICAL_LIST}
  
@@ -408,13 +408,16 @@ if [[ ${DO_SCHAEFER} == "YES" ]] ; then
       ((lab++))
    done
 
-   echo "Finished isolating cortical parcels; listed in ${CORTICAL_LIST}."
+   echo "Finished isolating cortical ROIs; listed in ${CORTICAL_LIST}."
 
 else
    echo "Skipping cortical parcellation."
 fi
 
-echo "============="
+all_atlases=$(echo $(ls ${ROOTDIR}/atlases/))
+echo "============================="
 echo "Summary:"
-if [[ ${DO_AAN} == "YES" ]] ; then
-   echo "Number of isolated files in processed AAN directory: $(ls -1 ${ROOTDIR}/atlases/AAN/isloated)|wc -l)."
+for atlas in ${all_atlases} ; do
+   echo "== Number of ROIs isolated to atlases/${atlas}: $(ls -1 ${ROOTDIR}/atlases/${atlas}/isolated|wc -l)."
+done
+echo "Ready to find overlaps using 02_find_overlaps.sh ."

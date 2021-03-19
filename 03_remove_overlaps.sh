@@ -24,6 +24,10 @@ for ((p=1 ; p<=${n_rois} ; p++)) ; do
    # Remove overlap from ROI1 file and save as ROI1 file again
    ${FSLDIR}/bin/fslmaths ${roi1} -mul ${roi2} -sub ${roi1} -mul -1 ${roi1}
 done
-echo "Fixed all overlaps."
+
+echo "============================="
+echo "Summary:"
+echo "Fixed ${n_rois} overlaps."
+echo "Ready to merge ROIs and create atlas using 04_merge_ROIs.sh ."
 
 
