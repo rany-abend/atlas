@@ -35,7 +35,7 @@ for ((r=1 ; r<=${n_rois} ; r++)) ; do
    for c in $(echo ${roi_comp} | (awk -F+ 'BEGIN {OFS="\n"} $1=$1 {print $0}')) ; do
       roi_cset=$(echo ${c} | awk -F_ '{print $1}')
       roi_cnam=$(echo ${c} | awk -F_ '{print $2}')
-      echo "-- Creating ROI ${roi_numb} ${roi_name} from ${roi_cset}_${roi_cnam}"
+      echo "-- Adding to ROI ${roi_numb} ${roi_name}: ${roi_cset}_${roi_cnam}"
       ${FSLDIR}/bin/fslmaths ${new_roi} -add ${ROOTDIR}/atlases/${roi_cset}/isolated/${roi_cset}_${roi_cnam} ${new_roi}
    done
 
@@ -58,4 +58,5 @@ echo "Summary:"
 echo "== Created new 3D atlas: ${new_atlas_3d}."
 echo "== Created new 4D atlas: ${new_atlas_4d}."
 
-${FSLDIR}/bin/imrm ${new_roi} ${TEMP_DIR}/zero
+${FSLDIR}/bin/imrm ${new_roi} 
+rm -rf ${TEMP_DIR}
