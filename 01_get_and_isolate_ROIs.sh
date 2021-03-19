@@ -359,7 +359,7 @@ if [[ ${DO_SUBFS} == "YES" ]] ; then
    done
 
    # Move remaining files that are not used to source directory so they will not be included in atlas
-   mv ${ROOTDIR}/atlases/FreeSurfer ${ROOTDIR}/source/processed
+   mv ${ROOTDIR}/atlases/FreeSurfer ${ROOTDIR}/source/processed_unused
    
    sed -i "s/.nii.gz//" ${SUBCORTICAL_LIST}
  
