@@ -20,7 +20,7 @@ The segmented structures include (see full table below):</p>
 <p>Individual ROIs can be flexibly combined into larger ROIs.<br>
 The generated atlas is in 1mm resolution in a standard MNI152 space (MNI152_T1_1mm_brain.nii.gz) and comes in 3D and 4D versions.</p>
 <h2 id="usage">Usage</h2>
-<p>Create a local directory (ROOT_DIR, hereafter), and download the <strong>one source_this file</strong> and <strong>four scripts</strong>  into a “/code” directory within it.</p>
+<p>Create a local directory (ROOTDIR, hereafter), and download the <strong>one source_this file</strong> and <strong>four scripts</strong>  into a “/code” directory within it.</p>
 <hr>
 <p><strong>SOURCE FILE: source_this.sh</strong></p>
 <p>This file is to be sourced (using the <em>source</em> command) before running any of the scripts.<br>
