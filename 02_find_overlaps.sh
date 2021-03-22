@@ -3,7 +3,6 @@
 # Output is saved in ${ROOTDIR}/lists/OVERLAP_FILE. 
 # In the file, each line specifies one overlap: ROI1 name, ROI2 name, overlap size, overlap coordinates.
 
-mkdir -p ${ROOTDIR}/lists/
 rm -f ${OVERLAP_FILE}
 
 # List all atlases
@@ -30,7 +29,7 @@ for ((atlas1=1;atlas1<=${n_atlases};atlas1++)) ; do
             # Save overlap
             ${FSLDIR}/bin/fslmaths ${roiA} -mul ${roiB} ${TEMP_DIR}/overlap
 	    # Extract max value, size, and location of overlap
-            stats=$(${FSLDIR}/bin/fslstats ${TEMP_DIR}/overlap -R -V -x)
+            stats=$(${FSLDIR}/bin/fslstats ${TEMP_DIR}/overlap -R -V -c)
             maxval=$(echo ${stats}|awk '{print $2}')
             maxval=${maxval//[[:blank:]]/}
             # If there is an overlap

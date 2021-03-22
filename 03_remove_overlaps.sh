@@ -19,10 +19,10 @@ for ((p=1 ; p<=${n_rois} ; p++)) ; do
    roi1=${ROOTDIR}/atlases/${roi1_set}/isolated/${roi1_str}
    roi2=${ROOTDIR}/atlases/${roi2_set}/isolated/${roi2_str}
 
-   echo "--Working on ${roi1_set}/${roi1_nam} and ${roi2_set}/${roi2_nam}; removing from ${roi1_set}/${roi1_nam}, ${over_siz} voxels"
+   echo "--Working on ${roi1_set}/${roi1_nam} and ${roi2_set}/${roi2_nam}; removing from ${roi2_set}/${roi2_nam}, ${over_siz} voxels"
    
-   # Remove overlap from ROI1 file and save as ROI1 file again
-   ${FSLDIR}/bin/fslmaths ${roi1} -mul ${roi2} -sub ${roi1} -mul -1 ${roi1}
+   # Remove overlap from ROI2 file and save as ROI2 file again
+   ${FSLDIR}/bin/fslmaths ${roi1} -mul ${roi2} -sub ${roi2} -mul -1 ${roi2}
 done
 
 echo "============================="
