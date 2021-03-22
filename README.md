@@ -1,95 +1,130 @@
+---
+
+
+---
+
 <h1 id="subcortical-atlas">Subcortical atlas</h1>
 <h2 id="background">Background</h2>
-<p>These bash scripts generate an atlas of subcortical structures in a standard space, by integrating a specified regions from number of different existing atlases.<br>
-The structures include (see full table below):</p>
+<p>This set of bash scripts generates an atlas of specific cortical and subcortical structures, in standard space, by integrating a number of publicly available atlases.</p>
+<p>The segmented structures include (see full table below):</p>
 <ul>
-<li><strong>Amygdala</strong> subnuclei (9 ROIs/hemisphere)<sup class="footnote-ref"><a href="#fn1" id="fnref1">1</a></sup></li>
-<li><strong>Hippocampus</strong> subfields (19 ROIs/hemisphere)<sup class="footnote-ref"><a href="#fn2" id="fnref2">2</a></sup></li>
-<li><strong>Thalamus</strong> subnuclei (24 ROIs/hemisphere)<sup class="footnote-ref"><a href="#fn3" id="fnref3">3</a></sup></li>
-<li><strong>Striatum</strong> nuclei (4 ROIs/hemisphere)<sup class="footnote-ref"><a href="#fn4" id="fnref4">4</a></sup></li>
-<li><strong>Hypothalamus</strong> (25 ROIs/hemisphere)<sup class="footnote-ref"><a href="#fn5" id="fnref5">5</a></sup></li>
-<li><strong>Midbrain/brainstem</strong> (9 ROIs)<sup class="footnote-ref"><a href="#fn6" id="fnref6">6</a></sup></li>
-<li><strong>Cerebellum</strong> (28 ROIs)<sup class="footnote-ref"><a href="#fn7" id="fnref7">7</a></sup></li>
-<li>Additionally: any of the <strong>Schaefer cortical parcellations</strong> (100-1000 parcels) can be downloaded and added to the atlas<sup class="footnote-ref"><a href="#fn8" id="fnref8">8</a></sup></li>
+<li>
+<p><strong>Amygdala</strong> subnuclei (9 ROIs/hemisphere)<sup class="footnote-ref"><a href="#fn1" id="fnref1">1</a></sup></p>
+</li>
+<li>
+<p><strong>Hippocampus</strong> subfields (19 ROIs/hemisphere)<sup class="footnote-ref"><a href="#fn2" id="fnref2">2</a></sup></p>
+</li>
+<li>
+<p><strong>Thalamus</strong> subnuclei (24 ROIs/hemisphere)<sup class="footnote-ref"><a href="#fn3" id="fnref3">3</a></sup></p>
+</li>
+<li>
+<p><strong>Striatum</strong> nuclei (4 ROIs/hemisphere)<sup class="footnote-ref"><a href="#fn4" id="fnref4">4</a></sup></p>
+</li>
+<li>
+<p><strong>Hypothalamus</strong> (25 ROIs/hemisphere)<sup class="footnote-ref"><a href="#fn5" id="fnref5">5</a></sup></p>
+</li>
+<li>
+<p><strong>Midbrain/brainstem</strong> (9 ROIs)<sup class="footnote-ref"><a href="#fn6" id="fnref6">6</a></sup></p>
+</li>
+<li>
+<p><strong>Cerebellum</strong> (28 ROIs)<sup class="footnote-ref"><a href="#fn7" id="fnref7">7</a></sup></p>
+</li>
+<li>
+<p>Additionally, any of the <strong>Schaefer cortical parcellations</strong> (100-1000 parcels) can be downloaded and added to the atlas<sup class="footnote-ref"><a href="#fn8" id="fnref8">8</a></sup></p>
+</li>
 </ul>
-<p>Individual ROIs can be flexibly combined into larger ROIs.<br>
-The generated atlas is in 1mm resolution in a standard MNI152 space (MNI152_T1_1mm_brain.nii.gz, as available in FSL) and comes in 3D and 4D versions (see below).</p>
+<p>Individual ROIs can be flexibly combined into larger ROIs. The generated atlas is in 1mm resolution in a standard MNI152 space (<code>MNI152_T1_1mm_brain.nii.gz</code>, as available in <a href="https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/">FSL</a>) and is produced in two versions: 3D (each voxel belongs to a labelled region) and 4D (each region is a binary volume). A colormap (LUT file) is produced, allowing easy visualization in <a href="https://surfer.nmr.mgh.harvard.edu/">FreeSurfer</a>’s <a href="https://surfer.nmr.mgh.harvard.edu/fswiki/FreeviewGuide">FreeView</a>. A descriptive text file that enables integration of the atlas into the <a href="https://web.conn-toolbox.org/">CONN</a> toolbox can optionally be produced.</p>
+<h2 id="requirements">Requirements</h2>
+<p>These scripts require FSL and FreeSurfer 7 to be installed.</p>
 <h2 id="usage">Usage</h2>
-<p>Create a local directory (`ROOTDIR`, hereafter), and download the <strong>one source_this.sh file</strong> and <strong>four scripts</strong>  into a “/code” directory within it.</p>
-<hr>
-<p><strong>SOURCE FILE: source_this.sh</strong></p>
-<p>This file is to be sourced (using the <em>source</em> command) before running any of the scripts.<br>
-This file defines several constants that will be used by the scripts. The user should review and amend these as necessary. Their default values are specified when relevant.</p>
-<ol>
-<li><strong>ROOTDIR</strong>: working directory.</li>
-<li><strong>TEMPLATE_T1</strong>=${FSLDIR}/data/standard/MNI152_T1_1mm_brain.nii.gz: the T1 structural template that atlases are registered to.</li>
-<li><strong>DOWNLOAD</strong>=YES: download atlases sources (YES/NO)? No need to download again if sources are already in ROOTDIR/source.</li>
-<li><strong>DO_SUBFS</strong>=YES: should the amygdala<sup class="footnote-ref"><a href="#fn1" id="fnref1:1">1</a></sup>, hippocampus<sup class="footnote-ref"><a href="#fn2" id="fnref2:1">2</a></sup>, and thalamus<sup class="footnote-ref"><a href="#fn3" id="fnref3:1">3</a></sup> subnuclei/subfields be included (YES/NO)? This will also include the four striatal nuclei from the basic FreeSurfer pipeline<sup class="footnote-ref"><a href="#fn4" id="fnref4:1">4</a></sup>.</li>
-<li><strong>DO_HYPOTHALAMUS</strong>=YES: should the Hypothalamus atlas<sup class="footnote-ref"><a href="#fn5" id="fnref5:1">5</a></sup> be included (YES/NO)?</li>
-<li><strong>DO_AAN</strong>=YES: should the Harvard Ascending Arousal Network (midbrain and brainstem<sup class="footnote-ref"><a href="#fn6" id="fnref6:1">6</a></sup>) be included (YES/NO)?</li>
-<li><strong>DO_CEREBELLUM</strong>=YES: should the Cerebellum atlas<sup class="footnote-ref"><a href="#fn7" id="fnref7:1">7</a></sup> be included (YES/NO)?</li>
-<li><strong>DO_SCHAEFER</strong>=YES: should any of the Schaefer cortical parcellations<sup class="footnote-ref"><a href="#fn8" id="fnref8:1">8</a></sup> be included (YES/NO)?</li>
-<li><strong>SCHAEFER_NUMNETS</strong>=17: if a Schaefer parcellation is to be included, which one (number of networks: 7/17)?</li>
-<li><strong>SCHAEFER_NUMPARC</strong>=100: if a Schaefer parcellation is to be included, which one (number of parcels: 100-1000)?</li>
-<li><strong>SUBCORTICAL_LIST</strong>=${ROOTDIR}/code/all_subcortical_ROIs.txt: this file will list all individual subcortical ROIs generated by the <em>01_get_and_isolate_ROIs.sh</em> script.</li>
-<li><strong>CORTICAL_LIST</strong>=${ROOTDIR}/code/all_cortical_ROIs.txt: this file will list all individual cortical parcels generated by the <em>01_get_and_isolate_ROIs.sh</em> script (if a parcellation is to be included).</li>
-<li><strong>OVERLAP_FILE</strong>=${ROOTDIR}/code/overlaps.csv: this file will be generated by generated by the <em>02_find_overlaps.sh</em> will list all identified overlaps between ROIs.</li>
-<li><strong>ROI_FILE</strong>=${ROOTDIR}/code/my_ROIs.txt: a user-defined text file in which each line defines one ROI from one or more of the individual ROIs created in SUBCORTICAL_LIST and CORTICAL_LIST.</li>
-<li><strong>ATLAS_NAME_3D</strong>: name of the 3D atlas to be created by <em>04_merge_ROIs.sh</em>.</li>
-<li><strong>ATLAS_NAME_4D</strong>: name of the 4D atlas to be created by <em>04_merge_ROIs.sh</em>.</li>
-<li><strong>LUT_TABLE_NAME</strong>: name of the color lookup table to accompany the atlases to be created by <em>04_merge_ROIs.sh</em>.</li>
-</ol>
-<hr>
-<p><strong>SCRIPT 1: 01_get_and_isolate_ROIs.sh</strong></p>
-<p>This script downloads (if chosen to) the source atlases from their original online locations. It then processes them: it registers them all to a common MNI152 space, and then isolates all ROIs in all atlases into individual nii.gz files.</p>
+<h3 id="clone-the-repository-locally">1. Clone the repository locally</h3>
+<p>Make a copy (clone) of the GitHub repository</p>
+<p><code>git clone https://github.com/rany-abend/atlas atlas.git</code></p>
+<h3 id="configure-the-source-file">2. Configure the source file</h3>
+<p>Edit the file <code>source_this.sh</code> and configure according to your needs. This file is to be sourced (using the <code>source</code> command) before running any of the scripts. It defines several constants that will be used by the scripts. The user should review and amend these as necessary. Their default values are specified when relevant.</p>
+<p><code>ROOTDIR</code>: Top directory for the atlas. It will be used to store all temporary files, as well as the final outputs from the scripts.</p>
+<p><code>ATLAS_NAME_3D=my_atlas_3d</code>: Name of the 3D atlas to be created by <code>04_merge_ROIs.sh</code> (do not specify a path here, just the name).</p>
+<p><code>ATLAS_NAME_4=my_atlas_4d</code>: Name of the 4D atlas to be created by <code>04_merge_ROIs.sh</code> (do not specify a path here, just the name).</p>
+<p><code>LUT_TABLE_NAME=my_atlas_LUT</code>: Name of the color lookup table to accompany the atlases to be created by <code>04_merge_ROIs.sh</code>.</p>
+<p><code>TEMPLATE_T1=${FSLDIR}/data/standard/MNI152_T1_1mm_brain.nii.gz</code>: the T1 structural template that atlases are registered to.</p>
+<p><code>DOWNLOAD=YES</code>: Download atlas sources (<code>YES</code>/<code>NO</code>)? No need to download again if sources are already in <code>${ROOTDIR}/source</code>.</p>
+<p><code>DO_SUBFS=YES</code>: Should the amygdala<sup class="footnote-ref"><a href="#fn1" id="fnref1:1">1</a></sup>, hippocampus<sup class="footnote-ref"><a href="#fn2" id="fnref2:1">2</a></sup>, and thalamus<sup class="footnote-ref"><a href="#fn3" id="fnref3:1">3</a></sup> subnuclei/subfields be included (<code>YES</code>/<code>NO</code>)? This will also include the four striatal nuclei from the basic FreeSurfer pipeline<sup class="footnote-ref"><a href="#fn4" id="fnref4:1">4</a></sup>.</p>
+<p><code>DO_HYPOTHALAMUS=YES</code>: Should the Hypothalamus atlas<sup class="footnote-ref"><a href="#fn5" id="fnref5:1">5</a></sup> be included (<code>YES</code>/<code>NO</code>)?</p>
+<p><code>DO_AAN=YES</code>: Should the Harvard Ascending Arousal Network (midbrain and brainstem<sup class="footnote-ref"><a href="#fn6" id="fnref6:1">6</a></sup>) be included (<code>YES</code>/<code>NO</code>)?</p>
+<p><code>DO_CEREBELLUM=YES</code>: Should the Cerebellum atlas<sup class="footnote-ref"><a href="#fn7" id="fnref7:1">7</a></sup> be included (<code>YES</code>/<code>NO</code>)?</p>
+<p><code>DO_SCHAEFER=YES</code>: Should any of the Schaefer cortical parcellations<sup class="footnote-ref"><a href="#fn8" id="fnref8:1">8</a></sup> be included (<code>YES</code>/<code>NO</code>)?</p>
+<p><code>SCHAEFER_NUMNETS=17</code>: If a Schaefer parcellation is to be included, which one (number of networks: <code>7</code> or <code>17</code>)?</p>
+<p><code>SCHAEFER_NUMPARC=100</code>: if a Schaefer parcellation is to be included, which one (number of parcels: <code>100</code>, <code>200</code>, …, <code>1000</code>)?</p>
+<p><code>ROI_FILE=${ROOTDIR}/lists/my_ROIs.txt</code>: A user-defined text file in which each line defines one ROI from one or more of the individual ROIs created in <code>${SUBCORTICAL_LIST}</code> and <code>${CORTICAL_LIST}</code>.</p>
+<p><code>SUBCORTICAL_LIST=${ROOTDIR}/lists/all_subcortical_ROIs.txt</code>: This file, to be created, will list all individual subcortical ROIs generated by the <code>01_get_and_isolate_ROIs.sh</code> script.</p>
+<p><code>CORTICAL_LIST=${ROOTDIR}/lists/all_cortical_ROIs.txt</code>: This file, to be created, will list all individual cortical parcels generated by the <code>01_get_and_isolate_ROIs.sh</code> script (if a parcellation is to be included).</p>
+<p><code>OVERLAP_FILE=${ROOTDIR}/lists/overlaps.csv</code>: This file will be generated by the <code>02_find_overlaps.sh</code> and will list all overlaps between ROIs.</p>
+<h3 id="run-01_get_and_isolate_rois.sh">3. Run <code>01_get_and_isolate_ROIs.sh</code></h3>
+<p>This script downloads (if chosen to) the source atlases from their original, publicly accessible, online locations. It then processes them: it registers them all to a common MNI152 space, and then isolates all ROIs in all atlases into individual nii.gz files.</p>
 <p><strong>Script outputs:</strong></p>
 <ol>
-<li>Directories within ROOTDIR/atlases/ containing an individual nii.gz file in the common MNI space per ROI (see table below). E.g., <em>ROOTDIR/atlases/Amygdala/isolated/Amygdala_Left-Accessory-Basal-nucleus.nii.gz</em>.</li>
-<li>A text file (saved in ROOTDIR/code; name defined by SUBCORTICAL_LIST) listing all the processed subcortical ROIs.</li>
-<li>A text file (saved in ROOTDIR/code; name defined by CORTICAL_LIST) listing all the processed cortical parcels.</li>
+<li>
+<p>Directories within <code>${ROOTDIR}/atlases/</code> containing one individual image file in the common space per ROI (see table below), e.g., <code>${ROOTDIR}/atlases/Amygdala/isolated/Amygdala_Left-Accessory-Basal-nucleus.nii.gz</code>.</p>
+</li>
+<li>
+<p>A text file listing all the processed subcortical ROIs. This file is saved in <code>${ROOTDIR}/lists/</code> (the file name is defined by <code>${SUBCORTICAL_LIST}</code>) .</p>
+</li>
+<li>
+<p>A text file listing all the processed cortical ROIs. This file is saved in <code>${ROOTDIR}/lists/</code> (the file name is defined by <code>${CORTICAL_LIST}</code>) .</p>
+</li>
 </ol>
-<hr>
-<p><strong>SCRIPT 2: 02_find_overlaps.sh</strong><br>
-Since the original atlases were created separately, there are some overlaps between them. This scripts identifies all overlaps.</p>
+<h3 id="run-02_find_overlaps.sh">4. Run <code>02_find_overlaps.sh</code></h3>
+<p>Since the original atlases were created separately, there might be some overlaps between them. This scripts identifies all such overlaps. which can then be, each one, assigned uniquely to just one ROI.</p>
+<p><strong>Script outputs:</strong></p>
+<p>A comma-separated text file (<code>.csv</code>), <code>${ROOTDIR}/lists/${OVERLAP_FILE}</code> indicating the overlaps. Each line represents one overlap; the six columns represent: (1) Overlapping ROI #1, (2) overlapping ROI #2, (3) the size of overlap (in voxels), and (4,5,6) the coordinates <em>(x,y,z)</em> of the center of gravity of the overlap (in mm).</p>
+<p>The next script will remove this overlap from ROI #2, while leaving ROI #1 unchanged. To do the reverse, reorder (by manually editing) the ROIs #1 and #2 in this file before running the next script.</p>
+<h3 id="run-03_remove_overlaps.sh">5. Run <code>03_remove_overlaps.sh</code></h3>
+<p>This scripts removes the ROI overlaps identified by the previous script, as stored in <code>${OVERLAP_FILE}</code>.</p>
+<p><strong>Script outputs:</strong></p>
+<p>No outputs. The script modifies each ROI #2 (in the relevant <code>${ROODIR}/*/isolated</code> directory) from the ROI #1 and ROI #2 pairs defined in the <code>${OVERLAP_FILE}</code>.</p>
+<h3 id="run-04_merge_rois.sh">6. Run <code>04_merge_ROIs.sh</code></h3>
+<p>This scripts takes a user-defined text file (as defined by <code>${ROI_FILE}</code>) specifying all ROIs that will comprise the new atlas. These ROIs can include combinations of individually isolated ROIs (as generated by <code>01_get_and_isolate_ROIs</code>). Each line in <code>${ROI_FILE}</code> should include one ROI to include in the atlas. The syntax of each line in this file is:</p>
+<p><code>roi_number:roi_name;roi1+roi2+roi3+...</code></p>
+<p>where:</p>
+<ul>
+<li><code>roi_number</code> is an integer defined by the user (note that for Schaefer parcels, these are automatically generated and occupy values <code>1000</code>-<code>2999</code>).</li>
+<li><code>roi_name</code> is the name of the newly created ROI, as defined by the user.</li>
+<li><code>roi1+roi2+roi3+...</code> are individual ROI names, as created by <code>01_get_and_isolate_ROIs.sh</code> and stored in <code>${SUBCORTICAL_LIST}</code> and <code>${CORTICAL_LIST}</code>) that will be combined into the newly created <code>roi_name</code>.</li>
+</ul>
+<p>For example:</p>
+<pre><code>1008:Schaefer_Left-SomMotA-1:Schaefer_Left-SomMotA-1
+5142:Hypothalamus_Left-BNST:Hypothalamus_Left-BNST
+5243:Hypothalamus_Right-Midbrain:Hypothalamus_Right-STN+Hypothalamus_Right-SN+Hypothalamus_Right-RN+Hypothalamus_Right-ZI
+</code></pre>
+<p>The above defines that ROI number <code>1008</code> in the new atlas will be called <code>Schaefer_Left-SomMotA-1</code> and will be formed by the ROI file <code>Schaefer_Left-SomMotA-1</code> (which corresponds to <code>Left-SomMotA-1</code> from the <code>Schaefer</code> atlas).</p>
+<p>Likewise ROI number <code>5142</code> in the new atlas will be called <code>Hypothalamus_Left-BNST</code> and will be formed by the ROI file <code>Hypothalamus_Left-BNST</code> (which corresponds to <code>Left-BNST</code> from the <code>Hypothalamus</code> atlas).</p>
+<p>Finally, ROI number <code>5243</code> in the new atlas will be called <code>Hypothalamus_Right-Midbrain</code> and will be formed by the combination (union) of the ROI files <code>Hypothalamus_Right-STN</code>, <code>Hypothalamus_Right-SN</code>, <code>Hypothalamus_Right-RN</code>, and <code>Hypothalamus_Right-ZI</code> (which correspond to the ROIs <code>Right-STN</code>, <code>Right-SN</code>, <code>Right-RN</code>, and <code>Right-ZI</code> from the <code>Hypothalamus</code> atlas).</p>
 <p><strong>Script outputs:</strong></p>
 <ol>
-<li>OVERLAP_FILE, a csv file saved in ROOTDIR/code/. Each overlap appears in one comma-separated line listing ROI1, ROI2, the size of overlap (in voxels), and coordinates of the overlap.<br>
-Note that the next script will remove this overlap by subtracting it from ROI1; the user may therefore wish to reorder ROI1 and ROI2 in this file.</li>
+<li>
+<p>A 3D atlas file, as specified by <code>${ATLAS_NAME_3D}</code>, in which all ROIs defined in <code>${ROI_FILE}</code> are in one volume. That is, each voxel of a given ROI contains the number of the label defined in <code>${ROI_FILE}</code>.</p>
+</li>
+<li>
+<p>A 4D atlas file, as specified by <code>${ATLAS_NAME_4D}</code>, in which each ROIs defined in <code>${ROI_FILE}</code> are one binary volume. That is, each volume of this four-dimensional file is a binary mask defining one ROI from <code>${ROI_FILE}</code>.</p>
+</li>
+<li>
+<p>A lookup table text file (<code>${LUT_TABLE_NAME}.txt</code>) defining the RGB color of each ROI in the atlas. This can be used for color-coding the ROIs in FreeView.</p>
+</li>
 </ol>
-<hr>
-<p><strong>SCRIPT 3: 03_remove_overlaps.sh</strong><br>
-This scripts removes the ROI overlaps identified by the previous script (stored in OVERLAP_FILE).</p>
-<p><strong>Script outputs:</strong><br>
-No outputs. The script modifies each ROI1 file (in the relevant /isolated directory) in ROI1 and ROI2 pairs defined in OVERLAP_FILE.</p>
-<hr>
-<p><strong>SCRIPT 4: 04_merge_ROIs.sh</strong><br>
-This scripts takes a user-defined text file (as defined by ROI_FILE) specifying all ROIs to comprise the new atlas. These ROIs can include combinations of individual ROIs. Each line in ROI_FILE should include one ROI to include in the atlas. The syntax of each line is: “roi_number:roi_name;roi1+roi2+roi3+…”, whereby roi_number is an integer defined by the user (note that for Schaefer parcels, these are automatically generated and occupy values 1000-2999); roi_name is any string name defined by the user; and roi1+roi2+roi3+… are individual ROI names (as created by <em>01_get_and_isolate_ROIs.sh</em> and stored in SUBCORTICAL_LIST and CORTICAL_LIST) combined into roi_name.<br>
-For example:<br>
-–1008:Schaefer_Left-SomMotA-1:Schaefer_Left-SomMotA-1<br>
-–5142:Hypothalamus_Left-BNST:Hypothalamus_Left-BNST<br>
-–5243:Hypothalamus_Right-Midbrain:Hypothalamus_Right-STN+Hypothalamus_Right-SN+Hypothalamus_Right-RN+Hypothalamus_Right-ZI</p>
-<p><strong>Script outputs:</strong></p>
-<ol>
-<li>A 3D atlas file (ATLAS_NAME_3D.nii.gz) in which all ROIs defined in ROI_FILE are in one volume. Each ROI has the number label defined in ROI_FILE.</li>
-<li>A 4D atlas file (ATLAS_NAME_4D.nii.gz) in which each ROI defined in ROI_FILE is in a separate, sequential volume. Each ROI value is 1.</li>
-<li>A lookup table text file (LUT_TABLE_NAME.txt) defining the RGB color of each ROI in the atlas.</li>
-</ol>
-<hr>
-<p><strong>Note</strong>: These scripts require FSL and FreeSurfer 7 to be locally installed.</p>
 <h2 id="methods">Methods</h2>
-<p><strong>Getting and isolating ROIs</strong></p>
-<p>Script <em>01_get_and_isolate_ROIs.sh</em> downloads/generates the source segmentations, registers them to a standard space, and processes all ROIs within them such that these could then be used to compose the new atlas.</p>
-<p>Amygdala, hippocampus, and thalamus subnuclei/subfield segmentation is performed on the output of a standard run of FreeSurfer’s <em>recon-all</em> on the mni_icbm152_nlin_asym_09b template<sup class="footnote-ref"><a href="#fn9" id="fnref9">9</a></sup> (<a href="http://www.bic.mni.mcgill.ca/~vfonov/icbm/2009/mni_icbm152_nlin_asym_09b_nifti.zip">http://www.bic.mni.mcgill.ca/~vfonov/icbm/2009/mni_icbm152_nlin_asym_09b_nifti.zip</a>) that has been registered to FSL’s MNI standard space (FSLDIR/data/standard/MNI152_T1_1mm_brain.nii.gz) using an affine transformation, through FLIRT<sup class="footnote-ref"><a href="#fn10" id="fnref10">10</a></sup>. The scripts <em>HA_T1.sh</em><sup class="footnote-ref"><a href="#fn1" id="fnref1:2">1</a></sup>,<sup class="footnote-ref"><a href="#fn2" id="fnref2:2">2</a></sup>  and <em><a href="http://segmentThalamicNuclei.sh">segmentThalamicNuclei.sh</a></em><sup class="footnote-ref"><a href="#fn3" id="fnref3:2">3</a></sup> then segment this registered output into subnuclei/subfields. These are then stored in their respective ROOTDIR/atlases/ directories. In addition, the four striatal nuclei segmented by the standard FreeSurfer run (accumbens, caudate, pallidum, putamen)<sup class="footnote-ref"><a href="#fn4" id="fnref4:2">4</a></sup> are retained and could be used in constructing the atlas (stored in ROOTDIR/atlases/Striatum).</p>
+<h3 id="getting-and-isolating-rois">Getting and isolating ROIs</h3>
+<p>Script <code>01_get_and_isolate_ROIs.sh</code> downloads a number of publicly available atlases, registers them to a standard space, and isolated all ROIs from each of them, rendering them amenable to combination into a new atlas.</p>
+<p>The <code>mni_icbm152_nlin_asym_09b</code> template<sup class="footnote-ref"><a href="#fn9" id="fnref9">9</a></sup> (<a href="http://www.bic.mni.mcgill.ca/~vfonov/icbm/2009/mni_icbm152_nlin_asym_09b_nifti.zip">http://www.bic.mni.mcgill.ca/~vfonov/icbm/2009/mni_icbm152_nlin_asym_09b_nifti.zip</a>) has non-brain tissue removed using BET, then registered to FSL’s own version of the MNI standard space (<code>${FSLDIR}/data/standard/MNI152_T1_1mm_brain.nii.gz</code>) using a rigid-body transformation through FLIRT<sup class="footnote-ref"><a href="#fn10" id="fnref10">10</a></sup>. The resulting affine transformation is then applied to the original (before removal of non-brain tissue) <code>mni_icbm152_nlin_asym_09b</code>, and the result is subjected to FreeSurfer’s processing (command <code>recon-all</code>). Amygdala, hippocampus, and thalamus subnuclei/subfield segmentations are then performed using the scripts <code>HA_T1.sh</code><sup class="footnote-ref"><a href="#fn1" id="fnref1:2">1</a></sup>,<sup class="footnote-ref"><a href="#fn2" id="fnref2:2">2</a></sup> and <code>segmentThalamicNuclei.sh</code><sup class="footnote-ref"><a href="#fn3" id="fnref3:2">3</a></sup>. The outputs from these are then stored in their respective <code>${ROOTDIR}/atlases/</code> directories. In addition, the four striatal nuclei segmented by the standard FreeSurfer run (accumbens, caudate, pallidum, putamen)<sup class="footnote-ref"><a href="#fn4" id="fnref4:2">4</a></sup> are retained and could be used in constructing the atlas (stored in <code>${ROOTDIR}/atlases/Striatum</code>).</p>
 <p>The hypothalamus segmentation<sup class="footnote-ref"><a href="#fn5" id="fnref5:2">5</a></sup> is downloaded from the repository created by its authors (<a href="https://zenodo.org/record/3942115/files/MNI152b_atlas_labels_0.5mm.nii.gz">https://zenodo.org/record/3942115/files/MNI152b_atlas_labels_0.5mm.nii.gz</a>). The space it is originally in is registered to FSL’s MNI standard space (FSLDIR/data/standard/MNI152_T1_1mm_brain.nii.gz) using an affine transformation, and resampled to 1mm, through FLIRT<sup class="footnote-ref"><a href="#fn10" id="fnref10:1">10</a></sup>.</p>
 <p>The midbrain/brainstem (AAN) segmentation<sup class="footnote-ref"><a href="#fn6" id="fnref6:2">6</a></sup> is downloaded from the repository created by its authors (<a href="http://nmr.mgh.harvard.edu/martinos/resources/aan-atlas/AAN_MNI152_1mm_v1p0.zip">http://nmr.mgh.harvard.edu/martinos/resources/aan-atlas/AAN_MNI152_1mm_v1p0.zip</a>). It is already in FSL’s MNI standard space and thus requires no additional processing.</p>
 <p>The cerebellum segmentation<sup class="footnote-ref"><a href="#fn7" id="fnref7:2">7</a></sup> is copied from FSL’s atlases directory (FSLDIR/data/atlases/Cerebellum/Cerebellum-MNIfnirt-maxprob-thr50-1mm.nii.gz). It shows good overlap with FSL’s MNI standard space and thus requires no additional processing.</p>
 <p>The Schaefer cortical parcellations<sup class="footnote-ref"><a href="#fn8" id="fnref8:2">8</a></sup> are downloaded from the repository created by its authors (<a href="https://raw.githubusercontent.com/ThomasYeoLab/CBIG/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal/Parcellations/MNI/">https://raw.githubusercontent.com/ThomasYeoLab/CBIG/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal/Parcellations/MNI/</a>). They show good overlap with FSL’s MNI standard space and thus require no additional processing.</p>
-<p>Each ROI as defined by the original atlases is then isolated into its own nii.gz file using FSL’s <em>fslmaths</em> command.<br>
-The script also generates text files listing all generated subcortical (SUBCORTICAL_LIST) and cortical (CORTICAL_LIST) ROIs.</p>
-<p><strong>Removing ROI overlaps</strong><br>
-Some overlaps between the original segmentations exist (e.g., Hypothalamus_Left-MT and Thalamus_Left-VA) since these were created by different authors and clear delineation of borders is not always clear. Script <em>02_find_overlaps.sh</em> tests for pairwise overlaps between all ROIs using FSL’s <em>fslmaths</em> and <em>fslstats</em> commands. All identified overlaps between ROI1 and ROI2 are then stored in OVERLAP_FILE. Script <em>03_remove_overlaps.sh</em> then removes all overlaps in OVERLAP_FILE by removing the ROI1-ROI2 overlap from ROI1 using FSL’s <em>fslmaths</em> command.</p>
-<p><strong>Merging ROIs into new atlas</strong><br>
-Finally, the user can define which ROIs to include in the new atlas in a new text file defined by ROI_FILE in the <em>source_this.sh</em> file. Multiple individual ROIs from SUBCORTICAL_LIST and CORTICAL_LIST can be combined to form one larger ROI. Single and combined ROIs are added together to the same volume, using <em>fslmaths</em>, to form the 3D atlas file. These are similarly added, but into different volumes using <em>fslmerge</em>, to form the 4D atlas file. In addition, an RGB color lookup table text file is created to accompany the atlases.</p>
+<p>Each ROI as defined by the original atlases is then isolated into its own nii.gz file using FSL’s <em>fslmaths</em> command.</p>
+<p>The script also generates text files listing all generated subcortical (SUBCORTICAL_LIST) and cortical (CORTICAL_LIST) ROIs.</p>
+<h3 id="removing-roi-overlaps">Removing ROI overlaps</h3>
+<p>Some overlaps between the original segmentations exist (e.g., Hypothalamus_Left-MT and Thalamus_Left-VA) since these were created by different authors and clear delineation of borders is not always clear. Script <em>02_find_overlaps.sh</em> tests for pairwise overlaps between all ROIs using FSL’s <em>fslmaths</em> and <em>fslstats</em> commands. All identified overlaps between ROI1 and ROI2 are then stored in OVERLAP_FILE. Script <em>03_remove_overlaps.sh</em> then removes all overlaps in OVERLAP_FILE by removing the ROI1-ROI2 overlap from ROI1 using FSL’s <em>fslmaths</em> command.</p>
+<h3 id="merging-rois-into-new-atlas">Merging ROIs into new atlas</h3>
+<p>Finally, the user can define which ROIs to include in the new atlas in a new text file defined by ROI_FILE in the <em>source_this.sh</em> file. Multiple individual ROIs from SUBCORTICAL_LIST and CORTICAL_LIST can be combined to form one larger ROI. Single and combined ROIs are added together to the same volume, using <em>fslmaths</em>, to form the 3D atlas file. These are similarly added, but into different volumes using <em>fslmerge</em>, to form the 4D atlas file. In addition, an RGB color lookup table text file is created to accompany the atlases.</p>
 <h2 id="segmented-rois">Segmented ROIs</h2>
 <p>Script-generated labels and corresponding full names of all segmented ROIs:</p>
 
