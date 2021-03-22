@@ -1,7 +1,6 @@
 #!/bin/bash
-# 1. Before running this script: place all scripts and source_this file in directory: ${ROOTDIR}/code
-# 2. Define all constants in ${ROOTDIR}/code/source_this.sh
-# 3. Run: source ${ROOTDIR}/code/source_this.sh
+# 1. Before running this script, define all constants in the accompanying source_this.sh file
+# 2. Run: source source_this.sh
 
 # This script downloads (if chose to) source atlases from their original online locations.
 # It then processes them (if chose to): it registers them all to a common MNI152 space, and

@@ -1,8 +1,9 @@
 #!/bin/bash
 # This script identifies overlaps among all atlases.
-# Output is saved in ROOTDIR/code/OVERLAP_FILE. 
+# Output is saved in ${ROOTDIR}/lists/OVERLAP_FILE. 
 # In the file, each line specifies one overlap: ROI1 name, ROI2 name, overlap size, overlap coordinates.
 
+mkdir -p ${ROOTDIR}/lists/
 rm -f ${OVERLAP_FILE}
 
 # List all atlases
@@ -49,5 +50,5 @@ done
 
 echo "============================="
 echo "Summary:"
-echo "Identified ${n_overlaps} overlaps; saved in code/${OVERLAP_FILE}."
+echo "Identified ${n_overlaps} overlaps; saved in ${ROOTDIR}/lists/${OVERLAP_FILE}."
 echo "Ready to remove overlaps using 03_remove_overlaps.sh ."
