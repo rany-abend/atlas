@@ -1,12 +1,7 @@
----
-
-
----
-
 <h1 id="subcortical-atlas">Subcortical atlas</h1>
 <h2 id="background">Background</h2>
-<p>These bash scripts generate an atlas of subcortical structures by integrating a number of existing segmentations into a common standard space.<br>
-The segmented structures include (see full table below):</p>
+<p>These bash scripts generate an atlas of subcortical structures in a standard space, by integrating a specified regions from number of different existing atlases.<br>
+The structures include (see full table below):</p>
 <ul>
 <li><strong>Amygdala</strong> subnuclei (9 ROIs/hemisphere)<sup class="footnote-ref"><a href="#fn1" id="fnref1">1</a></sup></li>
 <li><strong>Hippocampus</strong> subfields (19 ROIs/hemisphere)<sup class="footnote-ref"><a href="#fn2" id="fnref2">2</a></sup></li>
@@ -18,9 +13,9 @@ The segmented structures include (see full table below):</p>
 <li>Additionally: any of the <strong>Schaefer cortical parcellations</strong> (100-1000 parcels) can be downloaded and added to the atlas<sup class="footnote-ref"><a href="#fn8" id="fnref8">8</a></sup></li>
 </ul>
 <p>Individual ROIs can be flexibly combined into larger ROIs.<br>
-The generated atlas is in 1mm resolution in a standard MNI152 space (MNI152_T1_1mm_brain.nii.gz) and comes in 3D and 4D versions.</p>
+The generated atlas is in 1mm resolution in a standard MNI152 space (MNI152_T1_1mm_brain.nii.gz, as available in FSL) and comes in 3D and 4D versions (see below).</p>
 <h2 id="usage">Usage</h2>
-<p>Create a local directory (ROOTDIR, hereafter), and download the <strong>one source_this file</strong> and <strong>four scripts</strong>  into a “/code” directory within it.</p>
+<p>Create a local directory (`ROOTDIR`, hereafter), and download the <strong>one source_this.sh file</strong> and <strong>four scripts</strong>  into a “/code” directory within it.</p>
 <hr>
 <p><strong>SOURCE FILE: source_this.sh</strong></p>
 <p>This file is to be sourced (using the <em>source</em> command) before running any of the scripts.<br>
