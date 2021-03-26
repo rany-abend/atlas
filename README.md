@@ -33,7 +33,7 @@
 <p>Additionally, any of the <strong>Schaefer cortical parcellations</strong> (100-1000 parcels) can be downloaded and included in the atlas<sup class="footnote-ref"><a href="#fn8" id="fnref8">8</a></sup></p>
 </li>
 </ul>
-<p><img src="atlas.png" alt="Sample slices displaying atlas ROIs"></p>
+<center>![Sample slices displaying atlas ROIs](atlas.png) </center>
 <p>Individual ROIs can be flexibly combined into larger ROIs. The generated atlas is in 1mm resolution in a standard MNI152 space (<code>MNI152_T1_1mm_brain.nii.gz</code>, as available in <a href="https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/">FSL</a>) and is produced in two versions: 3D (each voxel belongs to a labelled region) and 4D (each region is a binary volume). A colormap (LUT file) is produced, allowing easy visualization in <a href="https://surfer.nmr.mgh.harvard.edu/">FreeSurfer</a>’s <a href="https://surfer.nmr.mgh.harvard.edu/fswiki/FreeviewGuide">FreeView</a>. A descriptive text file that enables integration of the atlas into the <a href="https://web.conn-toolbox.org/">CONN</a> toolbox can optionally be produced.</p>
 <h2 id="requirements">Requirements</h2>
 <p>These scripts require <a href="https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/">FSL</a> and <a href="https://surfer.nmr.mgh.harvard.edu/">FreeSurfer</a> 7 to be installed.</p>
