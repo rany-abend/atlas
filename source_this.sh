@@ -4,9 +4,9 @@
 ROOTDIR=/data/EDB/ExtRecall2/Atlas/
 
 # Names of the 3D and 4D atlases to be created by 04_merge_ROIs.sh, and accompanying color lookup table
-ATLAS_NAME_3D=atlas_v1_3d
-ATLAS_NAME_4D=atlas_v1_4d
-LUT_TABLE_NAME=atlas_v1_LUT
+ATLAS_NAME_3D=atlas_allROIs297_3d
+ATLAS_NAME_4D=atlas_allROIs297_4d
+LUT_TABLE_NAME=atlas_allROIs297_LUT
 
 # Template T1 brain to register to.
 TEMPLATE_T1=${FSLDIR}/data/standard/MNI152_T1_1mm_brain.nii.gz
@@ -26,7 +26,7 @@ SCHAEFER_NUMPARC=100 # Which Shaefer parcellation: number of parcels
 # User-defined ROI text file. 
 # Each line in the file defines one ROI from one or more of the individual ROIs created in the previous scrips.
 # Used by 04_merge_ROIs.sh.
-ROI_FILE=${ROOTDIR}/lists/my_ROIs.txt
+ROI_FILE=${ROOTDIR}/lists/allROIs297.txt
 
 # Files that will list all individual subcortical and cortical ROIs processed by scripts.
 # Produced by 01_get_and_isolate_ROIs.sh.
