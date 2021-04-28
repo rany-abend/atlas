@@ -1,1021 +1,423 @@
----
+# Subcortical atlas
 
+## Background
+ 
+This set of bash scripts generates an atlas of specific cortical and subcortical structures, in standard space, by integrating a number of publicly available atlases.
+ 
+The segmented structures include (see full table below):
+ 
+- **Amygdala** subnuclei (9 ROIs/hemisphere)[^1]
+ 
+- **Hippocampus** subfields (19 ROIs/hemisphere)[^2]
+ 
+- **Thalamus** subnuclei (24 ROIs/hemisphere)[^3]
+ 
+- **Striatum** nuclei (4 ROIs/hemisphere)[^4]
+ 
+- **Hypothalamus** (25 ROIs/hemisphere)[^5]
+ 
+- **Midbrain/brainstem** (9 ROIs)[^6]
+ 
+- **Cerebellum** (28 ROIs)[^7]
+ 
+- Additionally, any of the **Schaefer cortical parcellations** (100-1000 parcels) can be downloaded and included in the atlas[^8]
 
----
+![Sample slices displaying atlas ROIs](atlas.png) 
 
-<h1 id="subcortical-atlas">Subcortical atlas</h1>
-<h2 id="background">Background</h2>
-<p>This set of bash scripts generates an atlas of specific cortical and subcortical structures, in standard space, by integrating a number of publicly available atlases.</p>
-<p>The segmented structures include (see full table below):</p>
-<ul>
-<li>
-<p><strong>Amygdala</strong> subnuclei (9 ROIs/hemisphere)<sup class="footnote-ref"><a href="#fn1" id="fnref1">1</a></sup></p>
-</li>
-<li>
-<p><strong>Hippocampus</strong> subfields (19 ROIs/hemisphere)<sup class="footnote-ref"><a href="#fn2" id="fnref2">2</a></sup></p>
-</li>
-<li>
-<p><strong>Thalamus</strong> subnuclei (24 ROIs/hemisphere)<sup class="footnote-ref"><a href="#fn3" id="fnref3">3</a></sup></p>
-</li>
-<li>
-<p><strong>Striatum</strong> nuclei (4 ROIs/hemisphere)<sup class="footnote-ref"><a href="#fn4" id="fnref4">4</a></sup></p>
-</li>
-<li>
-<p><strong>Hypothalamus</strong> (25 ROIs/hemisphere)<sup class="footnote-ref"><a href="#fn5" id="fnref5">5</a></sup></p>
-</li>
-<li>
-<p><strong>Midbrain/brainstem</strong> (9 ROIs)<sup class="footnote-ref"><a href="#fn6" id="fnref6">6</a></sup></p>
-</li>
-<li>
-<p><strong>Cerebellum</strong> (28 ROIs)<sup class="footnote-ref"><a href="#fn7" id="fnref7">7</a></sup></p>
-</li>
-<li>
-<p>Additionally, any of the <strong>Schaefer cortical parcellations</strong> (100-1000 parcels) can be downloaded and included in the atlas<sup class="footnote-ref"><a href="#fn8" id="fnref8">8</a></sup></p>
-</li>
-</ul>
-<p><img src="atlas.png" alt="Sample slices displaying atlas ROIs"></p>
-<p>Individual ROIs can be flexibly combined into larger ROIs. The generated atlas is in 1mm resolution in a standard MNI152 space (<code>MNI152_T1_1mm_brain.nii.gz</code>, as available in <a href="https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/">FSL</a>) and is produced in two versions: 3D (each voxel belongs to a labelled region) and 4D (each region is a binary volume). A colormap (LUT file) is produced, allowing easy visualization in <a href="https://surfer.nmr.mgh.harvard.edu/">FreeSurfer</a>’s <a href="https://surfer.nmr.mgh.harvard.edu/fswiki/FreeviewGuide">FreeView</a>. A descriptive text file that enables integration of the atlas into the <a href="https://web.conn-toolbox.org/">CONN</a> toolbox can optionally be produced.</p>
-<h2 id="requirements">Requirements</h2>
-<p>These scripts require <a href="https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/">FSL</a> and <a href="https://surfer.nmr.mgh.harvard.edu/">FreeSurfer</a> 7 to be installed.</p>
-<h2 id="usage">Usage</h2>
-<h3 id="clone-the-repository-locally">1. Clone the repository locally</h3>
-<p>Make a copy (clone) of the GitHub atlas repository</p>
-<p><code>git clone https://github.com/rany-abend/atlas atlas.git</code></p>
-<h3 id="configure-the-source-file">2. Configure the source file</h3>
-<p>Edit the file <code>source_this.sh</code> and configure according to your needs. This file is to be sourced (using the <code>source</code> command) before running any of the scripts. It defines several constants that will be used by the scripts. The user should review and amend these as necessary. Their default values are specified when relevant.</p>
-<p><code>ROOTDIR</code>: Top directory for the atlas. It will be used to store all temporary files, as well as the final outputs from the scripts.</p>
-<p><code>ATLAS_NAME_3D=my_atlas_3d</code>: Name of the 3D atlas to be created by <code>04_merge_ROIs.sh</code> (do not specify a path here, just the name).</p>
-<p><code>ATLAS_NAME_4=my_atlas_4d</code>: Name of the 4D atlas to be created by <code>04_merge_ROIs.sh</code> (do not specify a path here, just the name).</p>
-<p><code>LUT_TABLE_NAME=my_atlas_LUT</code>: Name of the color lookup table to accompany the atlases to be created by <code>04_merge_ROIs.sh</code>.</p>
-<p><code>TEMPLATE_T1=${FSLDIR}/data/standard/MNI152_T1_1mm_brain.nii.gz</code>: the T1 structural template that atlases are registered to.</p>
-<p><code>DOWNLOAD=YES</code>: Download atlas sources (<code>YES</code>/<code>NO</code>)? No need to download again if sources are already in <code>${ROOTDIR}/source</code>.</p>
-<p><code>DO_SUBFS=YES</code>: Should the amygdala<sup class="footnote-ref"><a href="#fn1" id="fnref1:1">1</a></sup>, hippocampus<sup class="footnote-ref"><a href="#fn2" id="fnref2:1">2</a></sup>, and thalamus<sup class="footnote-ref"><a href="#fn3" id="fnref3:1">3</a></sup> subnuclei/subfields be included (<code>YES</code>/<code>NO</code>)? This will also include the four striatal nuclei from the basic FreeSurfer pipeline<sup class="footnote-ref"><a href="#fn4" id="fnref4:1">4</a></sup>.</p>
-<p><code>DO_HYPOTHALAMUS=YES</code>: Should the Hypothalamus atlas<sup class="footnote-ref"><a href="#fn5" id="fnref5:1">5</a></sup> be included (<code>YES</code>/<code>NO</code>)?</p>
-<p><code>DO_AAN=YES</code>: Should the Harvard Ascending Arousal Network (midbrain and brainstem<sup class="footnote-ref"><a href="#fn6" id="fnref6:1">6</a></sup>) be included (<code>YES</code>/<code>NO</code>)?</p>
-<p><code>DO_CEREBELLUM=YES</code>: Should the Cerebellum atlas<sup class="footnote-ref"><a href="#fn7" id="fnref7:1">7</a></sup> be included (<code>YES</code>/<code>NO</code>)?</p>
-<p><code>DO_SCHAEFER=YES</code>: Should any of the Schaefer cortical parcellations<sup class="footnote-ref"><a href="#fn8" id="fnref8:1">8</a></sup> be included (<code>YES</code>/<code>NO</code>)?</p>
-<p><code>SCHAEFER_NUMNETS=17</code>: If a Schaefer parcellation is to be included, which one (number of networks: <code>7</code> or <code>17</code>)?</p>
-<p><code>SCHAEFER_NUMPARC=100</code>: if a Schaefer parcellation is to be included, which one (number of parcels: <code>100</code>, <code>200</code>, …, <code>1000</code>)?</p>
-<p><code>ROI_FILE=${ROOTDIR}/lists/my_ROIs.txt</code>: A user-defined text file in which each line defines one ROI from one or more of the individual ROIs created in <code>${SUBCORTICAL_LIST}</code> and <code>${CORTICAL_LIST}</code>.</p>
-<p><code>SUBCORTICAL_LIST=${ROOTDIR}/lists/all_subcortical_ROIs.txt</code>: This file, to be created, will list all individual subcortical ROIs generated by the <code>01_get_and_isolate_ROIs.sh</code> script.</p>
-<p><code>CORTICAL_LIST=${ROOTDIR}/lists/all_cortical_ROIs.txt</code>: This file, to be created, will list all individual cortical parcels generated by the <code>01_get_and_isolate_ROIs.sh</code> script (if a parcellation is to be included).</p>
-<p><code>OVERLAP_FILE=${ROOTDIR}/lists/overlaps.csv</code>: This file will be generated by the <code>02_find_overlaps.sh</code> and will list all overlaps between ROIs.</p>
-<h3 id="run-01_get_and_isolate_rois.sh">3. Run <code>01_get_and_isolate_ROIs.sh</code></h3>
-<p>This script downloads (if the user chooses to) the source atlases from their original, publicly accessible, online locations. It then processes them: it registers them all to a common MNI152 space, and then isolates all ROIs in all atlases into individual <code>.nii.gz</code> files.</p>
-<p><strong>Script outputs:</strong></p>
-<ol>
-<li>
-<p>Directories within <code>${ROOTDIR}/atlases/</code> containing one individual image file in the common space per ROI (see table below), e.g., <code>${ROOTDIR}/atlases/Amygdala/isolated/Amygdala_Left-Accessory-Basal-nucleus.nii.gz</code>.</p>
-</li>
-<li>
-<p>A text file listing all the processed subcortical ROIs. This file is saved in <code>${ROOTDIR}/lists/</code> (the file name is defined by <code>${SUBCORTICAL_LIST}</code>) .</p>
-</li>
-<li>
-<p>A text file listing all the processed cortical ROIs. This file is saved in <code>${ROOTDIR}/lists/</code> (the file name is defined by <code>${CORTICAL_LIST}</code>) .</p>
-</li>
-</ol>
-<h3 id="run-02_find_overlaps.sh">4. Run <code>02_find_overlaps.sh</code></h3>
-<p>Since the original atlases were created separately, there might be some overlaps between them. This scripts identifies all such overlaps. which can then be, each one, assigned uniquely to just one ROI.</p>
-<p><strong>Script outputs:</strong></p>
-<p>A comma-separated text file (<code>.csv</code>), <code>${ROOTDIR}/lists/${OVERLAP_FILE}</code> indicating the overlaps. Each line represents one overlap; the six columns represent: (1) Overlapping ROI #1, (2) overlapping ROI #2, (3) the size of overlap (in voxels), and (4,5,6) the coordinates <em>(x,y,z)</em> of the center of gravity of the overlap (in mm).</p>
-<p>The next script will remove this overlap from ROI #2, while leaving ROI #1 unchanged. To do the reverse, reorder (by manually editing) the ROIs #1 and #2 in this file before running the next script.</p>
-<h3 id="run-03_remove_overlaps.sh">5. Run <code>03_remove_overlaps.sh</code></h3>
-<p>This scripts removes the ROI overlaps identified by the previous script, as stored in <code>${OVERLAP_FILE}</code>.</p>
-<p><strong>Script outputs:</strong></p>
-<p>No outputs. The script modifies each ROI #2 (in the relevant <code>${ROODIR}/*/isolated</code> directory) from the ROI #1 and ROI #2 pairs defined in the <code>${OVERLAP_FILE}</code>.</p>
-<h3 id="run-04_merge_rois.sh">6. Run <code>04_merge_ROIs.sh</code></h3>
-<p>This scripts takes a user-defined text file (as defined by <code>${ROI_FILE}</code>) specifying all ROIs that will comprise the new atlas. These ROIs can include combinations of individually isolated ROIs (as generated by <code>01_get_and_isolate_ROIs</code>). Each line in <code>${ROI_FILE}</code> should include one ROI to include in the atlas. The syntax of each line in this file is:</p>
-<p><code>roi_number:roi_name;roi1+roi2+roi3+...</code></p>
-<p>where:</p>
-<ul>
-<li><code>roi_number</code> is an integer defined by the user (note that for Schaefer parcels, these are automatically generated and occupy values <code>1000</code>-<code>2999</code>).</li>
-<li><code>roi_name</code> is the name of the newly created ROI, as defined by the user.</li>
-<li><code>roi1+roi2+roi3+...</code> are individual ROI names, as created by <code>01_get_and_isolate_ROIs.sh</code> and stored in <code>${SUBCORTICAL_LIST}</code> and <code>${CORTICAL_LIST}</code>) that will be combined into the newly created <code>roi_name</code>.</li>
-</ul>
-<p>For example:</p>
-<pre><code>1008:Schaefer_Left-SomMotA-1:Schaefer_Left-SomMotA-1
+Individual ROIs can be flexibly combined into larger ROIs. The generated atlas is in 1mm resolution in a standard MNI152 space (`MNI152_T1_1mm_brain.nii.gz`, as available in [FSL](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/)) and is produced in two versions: 3D (each voxel belongs to a labelled region) and 4D (each region is a binary volume). A colormap (LUT file) is produced, allowing easy visualization in [FreeSurfer](https://surfer.nmr.mgh.harvard.edu/)'s [FreeView](https://surfer.nmr.mgh.harvard.edu/fswiki/FreeviewGuide). A descriptive text file that enables integration of the atlas into the [CONN](https://web.conn-toolbox.org/) toolbox can optionally be produced.
+ 
+## Requirements
+ 
+These scripts require [FSL](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/) and [FreeSurfer](https://surfer.nmr.mgh.harvard.edu/) 7 to be installed.
+ 
+## Usage
+ 
+### 1. Clone the repository locally
+ 
+Make a copy (clone) of the GitHub atlas repository
+ 
+`git clone https://github.com/rany-abend/atlas atlas.git`
+ 
+### 2. Configure the source file
+ 
+Edit the file `source_this.sh` and configure according to your needs. This file is to be sourced (using the `source` command) before running any of the scripts. It defines several constants that will be used by the scripts. The user should review and amend these as necessary. Their default values are specified when relevant.
+ 
+`ROOTDIR`: Top directory for the atlas. It will be used to store all temporary files, as well as the final outputs from the scripts.
+ 
+`ATLAS_NAME_3D=my_atlas_3d`: Name of the 3D atlas to be created by `04_merge_ROIs.sh` (do not specify a path here, just the name).
+ 
+`ATLAS_NAME_4=my_atlas_4d`: Name of the 4D atlas to be created by `04_merge_ROIs.sh` (do not specify a path here, just the name).
+ 
+`LUT_TABLE_NAME=my_atlas_LUT`: Name of the color lookup table to accompany the atlases to be created by `04_merge_ROIs.sh`.
+ 
+`TEMPLATE_T1=${FSLDIR}/data/standard/MNI152_T1_1mm_brain.nii.gz`: the T1 structural template that atlases are registered to.
+ 
+`DOWNLOAD=YES`: Download atlas sources (`YES`/`NO`)? No need to download again if sources are already in `${ROOTDIR}/source`.
+ 
+`DO_SUBFS=YES`: Should the amygdala[^1], hippocampus[^2], and thalamus[^3] subnuclei/subfields be included (`YES`/`NO`)? This will also include the four striatal nuclei from the basic FreeSurfer pipeline[^4].
+ 
+`DO_HYPOTHALAMUS=YES`: Should the Hypothalamus atlas[^5] be included (`YES`/`NO`)?
+ 
+`DO_AAN=YES`: Should the Harvard Ascending Arousal Network (midbrain and brainstem[^6]) be included (`YES`/`NO`)?
+ 
+`DO_CEREBELLUM=YES`: Should the Cerebellum atlas[^7] be included (`YES`/`NO`)?
+ 
+`DO_SCHAEFER=YES`: Should any of the Schaefer cortical parcellations[^8] be included (`YES`/`NO`)?
+ 
+`SCHAEFER_NUMNETS=17`: If a Schaefer parcellation is to be included, which one (number of networks: `7` or `17`)?
+ 
+`SCHAEFER_NUMPARC=100`: if a Schaefer parcellation is to be included, which one (number of parcels: `100`, `200`, ..., `1000`)?
+ 
+`ROI_FILE=${ROOTDIR}/lists/my_ROIs.txt`: A user-defined text file in which each line defines one ROI from one or more of the individual ROIs created in `${SUBCORTICAL_LIST}` and `${CORTICAL_LIST}`.
+ 
+`SUBCORTICAL_LIST=${ROOTDIR}/lists/all_subcortical_ROIs.txt`: This file, to be created, will list all individual subcortical ROIs generated by the `01_get_and_isolate_ROIs.sh` script.
+ 
+`CORTICAL_LIST=${ROOTDIR}/lists/all_cortical_ROIs.txt`: This file, to be created, will list all individual cortical parcels generated by the `01_get_and_isolate_ROIs.sh` script (if a parcellation is to be included).
+ 
+`OVERLAP_FILE=${ROOTDIR}/lists/overlaps.csv`: This file will be generated by the `02_find_overlaps.sh` and will list all overlaps between ROIs.
+ 
+### 3. Run `01_get_and_isolate_ROIs.sh`
+ 
+This script downloads (if the user chooses to) the source atlases from their original, publicly accessible, online locations. It then processes them: it registers them all to a common MNI152 space, and then isolates all ROIs in all atlases into individual `.nii.gz` files.
+ 
+**Script outputs:**
+ 
+1. Directories within `${ROOTDIR}/atlases/` containing one individual image file in the common space per ROI (see table below), e.g., `${ROOTDIR}/atlases/Amygdala/isolated/Amygdala_Left-Accessory-Basal-nucleus.nii.gz`.
+ 
+2. A text file listing all the processed subcortical ROIs. This file is saved in `${ROOTDIR}/lists/` (the file name is defined by `${SUBCORTICAL_LIST}`) .
+ 
+3. A text file listing all the processed cortical ROIs. This file is saved in `${ROOTDIR}/lists/` (the file name is defined by `${CORTICAL_LIST}`) .
+ 
+### 4. Run `02_find_overlaps.sh`
+ 
+Since the original atlases were created separately, there might be some overlaps between them. This scripts identifies all such overlaps. which can then be, each one, assigned uniquely to just one ROI.
+ 
+**Script outputs:**
+ 
+A comma-separated text file (`.csv`), `${ROOTDIR}/lists/${OVERLAP_FILE}` indicating the overlaps. Each line represents one overlap; the six columns represent: (1) overlapping ROI #1, (2) overlapping ROI #2, (3) the size of overlap (in voxels), and (4,5,6) the coordinates *(x,y,z)* of the center of gravity of the overlap (in mm).
+ 
+The next script will remove this overlap from ROI #2, while leaving ROI #1 unchanged. To do the reverse, reorder (by manually editing) the ROIs #1 and #2 in this file before running the next script.
+ 
+### 5. Run `03_remove_overlaps.sh`
+ 
+This scripts removes the ROI overlaps identified by the previous script, as stored in `${OVERLAP_FILE}`.
+ 
+**Script outputs:**
+ 
+No outputs. The script modifies each ROI #2 (in the relevant `${ROODIR}/*/isolated` directory) from the ROI #1 and ROI #2 pairs defined in the `${OVERLAP_FILE}`.
+ 
+### 6. Run `04_merge_ROIs.sh`
+ 
+This scripts takes a user-defined text file (as defined by `${ROI_FILE}`) specifying all ROIs that will comprise the new atlas. These ROIs can include combinations of individually isolated ROIs (as generated by `01_get_and_isolate_ROIs`). Each line in `${ROI_FILE}` should include one ROI to include in the atlas. The syntax of each line in this file is:
+ 
+`roi_number:roi_name:roi1+roi2+roi3+...`
+ 
+where:
+* `roi_number` is an integer defined by the user (note that for Schaefer parcels, these are automatically generated and occupy values `1000`-`2999`).
+* `roi_name` is the name of the newly created ROI, as defined by the user.
+* `roi1+roi2+roi3+...` are individual ROI names, as created by `01_get_and_isolate_ROIs.sh` and stored in `${SUBCORTICAL_LIST}` and `${CORTICAL_LIST}`) that will be combined into the newly created `roi_name`.
+ 
+For example:
+ 
+```
+1008:Schaefer_Left-SomMotA-1:Schaefer_Left-SomMotA-1
 5142:Hypothalamus_Left-BNST:Hypothalamus_Left-BNST
 5243:Hypothalamus_Right-Midbrain:Hypothalamus_Right-STN+Hypothalamus_Right-SN+Hypothalamus_Right-RN+Hypothalamus_Right-ZI
-</code></pre>
-<p>The above defines that ROI number <code>1008</code> in the new atlas will be called <code>Schaefer_Left-SomMotA-1</code> and will be formed by the ROI file (from the <code>Schaefer/isolated/</code> directory) <code>Schaefer_Left-SomMotA-1</code> (which corresponds to <code>Left-SomMotA-1</code> from the <code>Schaefer</code> atlas).</p>
-<p>Likewise ROI number <code>5142</code> in the new atlas will be called <code>Hypothalamus_Left-BNST</code> and will be formed by the ROI file <code>Hypothalamus_Left-BNST</code> (which corresponds to <code>Left-BNST</code> from the <code>Hypothalamus</code> atlas).</p>
-<p>Finally, ROI number <code>5243</code> in the new atlas will be called <code>Hypothalamus_Right-Midbrain</code> and will be formed by the combination (union) of the ROI files <code>Hypothalamus_Right-STN</code>, <code>Hypothalamus_Right-SN</code>, <code>Hypothalamus_Right-RN</code>, and <code>Hypothalamus_Right-ZI</code> from the <code>Hypothalamus/isolated/</code> directory (corresponding to the ROIs <code>Right-STN</code>, <code>Right-SN</code>, <code>Right-RN</code>, and <code>Right-ZI</code> from the <code>Hypothalamus</code> atlas).</p>
-<p><strong>Script outputs:</strong></p>
-<ol>
-<li>
-<p>A 3D atlas file, named as specified by <code>${ATLAS_NAME_3D}</code>, in which all ROIs defined in <code>${ROI_FILE}</code> are in one volume. That is, each voxel of a given ROI contains the number of the label defined in <code>${ROI_FILE}</code>.</p>
-</li>
-<li>
-<p>A 4D atlas file, named as specified by <code>${ATLAS_NAME_4D}</code>, in which each ROIs defined in <code>${ROI_FILE}</code> resides in one binary volume. That is, each volume of this four-dimensional file is a binary mask defining one ROI from <code>${ROI_FILE}</code>.</p>
-</li>
-<li>
-<p>A lookup table text file (<code>${LUT_TABLE_NAME}.txt</code>) defining the RGB color of each ROI in the atlas. This can be used for color-coding the ROIs in FreeView.</p>
-</li>
-</ol>
-<h2 id="methods">Methods</h2>
-<h3 id="getting-and-isolating-rois">Getting and isolating ROIs</h3>
-<p>Script <code>01_get_and_isolate_ROIs.sh</code> downloads a number of publicly available atlases, registers them to a standard space, and isolates all ROIs from each of them, rendering them amenable to combination into a new atlas.</p>
-<p>The <code>mni_icbm152_nlin_asym_09b</code> template<sup class="footnote-ref"><a href="#fn9" id="fnref9">9</a></sup> (<a href="http://www.bic.mni.mcgill.ca/~vfonov/icbm/2009/mni_icbm152_nlin_asym_09b_nifti.zip">http://www.bic.mni.mcgill.ca/~vfonov/icbm/2009/mni_icbm152_nlin_asym_09b_nifti.zip</a>) is downloaded and has non-brain tissue removed using BET, then is registered to FSL’s own version of the MNI standard space (<code>${FSLDIR}/data/standard/MNI152_T1_1mm_brain.nii.gz</code>) using a rigid-body transformation through FLIRT<sup class="footnote-ref"><a href="#fn10" id="fnref10">10</a></sup>. The resulting affine transformation is then applied to the original (before removal of non-brain tissue) <code>mni_icbm152_nlin_asym_09b</code>, and the result is subjected to FreeSurfer’s processing (command <code>recon-all</code>). Amygdala, hippocampus, and thalamus subnuclei/subfield segmentations are then performed using the scripts <code>HA_T1.sh</code><sup class="footnote-ref"><a href="#fn1" id="fnref1:2">1</a></sup>,<sup class="footnote-ref"><a href="#fn2" id="fnref2:2">2</a></sup> and <code>segmentThalamicNuclei.sh</code><sup class="footnote-ref"><a href="#fn3" id="fnref3:2">3</a></sup>. The outputs from these stored in their respective <code>${ROOTDIR}/atlases/</code> directories. In addition, the four striatal nuclei segmented by FreeSurfer (accumbens, caudate, pallidum, and putamen)<sup class="footnote-ref"><a href="#fn4" id="fnref4:2">4</a></sup> are retained and could be used in constructing the atlas (stored in <code>${ROOTDIR}/atlases/Striatum</code>).</p>
-<p>The hypothalamus segmentation<sup class="footnote-ref"><a href="#fn5" id="fnref5:2">5</a></sup> is downloaded from the repository created by its authors (<a href="https://zenodo.org/record/3942115/files/MNI152b_atlas_labels_0.5mm.nii.gz">https://zenodo.org/record/3942115/files/MNI152b_atlas_labels_0.5mm.nii.gz</a>), then registered to FSL’s MNI standard space (<code>${FSLDIR}/data/standard/MNI152_T1_1mm_brain.nii.gz</code>) using an affine transformation, and resampled to 1mm, through FLIRT<sup class="footnote-ref"><a href="#fn10" id="fnref10:1">10</a></sup>.</p>
-<p>The midbrain/brainstem (AAN) segmentation<sup class="footnote-ref"><a href="#fn6" id="fnref6:2">6</a></sup> is downloaded from the repository created by its authors (<a href="http://nmr.mgh.harvard.edu/martinos/resources/aan-atlas/AAN_MNI152_1mm_v1p0.zip">http://nmr.mgh.harvard.edu/martinos/resources/aan-atlas/AAN_MNI152_1mm_v1p0.zip</a>). It is already in FSL’s MNI standard space and thus requires no additional processing.</p>
-<p>The cerebellum segmentation<sup class="footnote-ref"><a href="#fn7" id="fnref7:2">7</a></sup> is copied from FSL’s atlases directory (<code>${FSLDIR}/data/atlases/Cerebellum/Cerebellum-MNIfnirt-maxprob-thr50-1mm.nii.gz</code>). It is already in FSL’s MNI standard space and thus requires no additional processing.</p>
-<p>The Schaefer cortical parcellations<sup class="footnote-ref"><a href="#fn8" id="fnref8:2">8</a></sup> are downloaded from the repository created by its authors (<a href="https://raw.githubusercontent.com/ThomasYeoLab/CBIG/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal/Parcellations/MNI/">https://raw.githubusercontent.com/ThomasYeoLab/CBIG/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal/Parcellations/MNI/</a>). They show good overlap with FSL’s MNI standard space and thus require no additional processing.</p>
-<p>Each ROI as defined by the original atlases is then isolated into its own <code>.nii.gz</code> file using FSL’s <code>fslmaths</code> command. The script also generates text files listing all isolated subcortical (<code>SUBCORTICAL_LIST</code>) and cortical (<code>CORTICAL_LIST</code>) ROIs.</p>
-<h3 id="removing-roi-overlaps">Removing ROI overlaps</h3>
-<p>Some overlaps between the original segmentations exist (e.g., <code>Hypothalamus_Left-MT</code> and <code>Thalamus_Left-VA</code>) since these were created by different authors and clear delineation of borders is not always possible. Script <code>02_find_overlaps.sh</code> tests for pairwise overlaps between all ROIs using FSL’s <code>fslmaths</code> and <code>fslstats</code> commands. All identified overlaps between ROI #1 and ROI #2 are then stored in <code>${ROOTDIR}/lists/${OVERLAP_FILE}</code>. Script <code>03_remove_overlaps.sh</code> then removes all overlaps in <code>${OVERLAP_FILE}</code> by removing the overlap between the two regions from ROI #2 using <code>fslmaths</code> (thus keeping ROI #1 unchanged).</p>
-<h3 id="merging-rois-into-new-atlas">Merging ROIs into new atlas</h3>
-<p>Finally, the user can define which ROIs to include in the new atlas. This is done using the text file indicated by <code>${ROI_FILE}</code> in <code>source_this.sh</code>. Multiple individual ROIs from <code>${SUBCORTICAL_LIST}</code> and <code>${CORTICAL_LIST}</code> can be combined to form one larger ROI. Single and combined ROIs are added together to the same volume, using <code>fslmaths</code>, to form the 3D atlas file. To form the 4D atlas file, these are similarly added, but into different volumes using <code>fslmerge</code>. The 3D and 4D atlases are stored in files as defined by <code>${ATLAS_NAME_3D}</code> and  <code>${ATLAS_NAME_4D}</code>. In addition, an RGB color lookup table text file is created to accompany the atlases, and stored as indicated by <code>${LUT_TABLE_NAME}</code>.</p>
-<h2 id="segmented-rois">Segmented ROIs</h2>
-<p>Script-generated labels and corresponding full names of all segmented ROIs from all atlases:</p>
-<h3 id="amygdala">Amygdala</h3>
+```
+ 
+The above defines that ROI number `1008` in the new atlas will be called `Schaefer_Left-SomMotA-1` and will be formed by the ROI file (from the `Schaefer/isolated/` directory) `Schaefer_Left-SomMotA-1` (which corresponds to `Left-SomMotA-1` from the `Schaefer` atlas).
+ 
+Likewise ROI number `5142` in the new atlas will be called `Hypothalamus_Left-BNST` and will be formed by the ROI file `Hypothalamus_Left-BNST` (which corresponds to `Left-BNST` from the `Hypothalamus` atlas).
+ 
+Finally, ROI number `5243` in the new atlas will be called `Hypothalamus_Right-Midbrain` and will be formed by the combination (union) of the ROI files `Hypothalamus_Right-STN`, `Hypothalamus_Right-SN`, `Hypothalamus_Right-RN`, and `Hypothalamus_Right-ZI` from the `Hypothalamus/isolated/` directory (corresponding to the ROIs `Right-STN`, `Right-SN`, `Right-RN`, and `Right-ZI` from the `Hypothalamus` atlas).
+ 
+**Script outputs:**
+ 
+1. A 3D atlas file, named as specified by `${ATLAS_NAME_3D}`, in which all ROIs defined in `${ROI_FILE}` are in one volume. That is, each voxel of a given ROI contains the number of the label defined in `${ROI_FILE}`.
+2. A 4D atlas file, named as specified by `${ATLAS_NAME_4D}`, in which each ROIs defined in `${ROI_FILE}` resides in one binary volume. That is, each volume of this four-dimensional file is a binary mask defining one ROI from `${ROI_FILE}`.
+ 
+4. A lookup table text file (`${LUT_TABLE_NAME}.txt`) defining the RGB color of each ROI in the atlas. This can be used for color-coding the ROIs in FreeView.
+ 
+## Methods
+ 
+### Getting and isolating ROIs
+ 
+Script `01_get_and_isolate_ROIs.sh` downloads a number of publicly available atlases, registers them to a standard space, and isolates all ROIs from each of them, rendering them amenable to combination into a new atlas.
+ 
+The `mni_icbm152_nlin_asym_09b` template[^9] ([http://www.bic.mni.mcgill.ca/~vfonov/icbm/2009/mni_icbm152_nlin_asym_09b_nifti.zip](http://www.bic.mni.mcgill.ca/~vfonov/icbm/2009/mni_icbm152_nlin_asym_09b_nifti.zip)) is downloaded and has non-brain tissue removed using BET, then is registered to FSL's own version of the MNI standard space (`${FSLDIR}/data/standard/MNI152_T1_1mm_brain.nii.gz`) using a rigid-body transformation through FLIRT[^10]. The resulting affine transformation is then applied to the original (before removal of non-brain tissue) `mni_icbm152_nlin_asym_09b`, and the result is subjected to FreeSurfer's processing (command `recon-all`). Amygdala, hippocampus, and thalamus subnuclei/subfield segmentations are then performed using the scripts `HA_T1.sh`[^1],[^2] and `segmentThalamicNuclei.sh`[^3]. The outputs from these stored in their respective `${ROOTDIR}/atlases/` directories. In addition, the four striatal nuclei segmented by FreeSurfer (accumbens, caudate, pallidum, and putamen)[^4] are retained and could be used in constructing the atlas (stored in `${ROOTDIR}/atlases/Striatum`).
+ 
+The hypothalamus segmentation[^5] is downloaded from the repository created by its authors ([https://zenodo.org/record/3942115/files/MNI152b_atlas_labels_0.5mm.nii.gz](https://zenodo.org/record/3942115/files/MNI152b_atlas_labels_0.5mm.nii.gz)), then registered to FSL's MNI standard space (`${FSLDIR}/data/standard/MNI152_T1_1mm_brain.nii.gz`) using an affine transformation, and resampled to 1mm, through FLIRT[^10].
+ 
+The midbrain/brainstem (AAN) segmentation[^6] is downloaded from the repository created by its authors ([http://nmr.mgh.harvard.edu/martinos/resources/aan-atlas/AAN_MNI152_1mm_v1p0.zip](http://nmr.mgh.harvard.edu/martinos/resources/aan-atlas/AAN_MNI152_1mm_v1p0.zip)). It is already in FSL's MNI standard space and thus requires no additional processing.
+ 
+The cerebellum segmentation[^7] is copied from FSL's atlases directory (`${FSLDIR}/data/atlases/Cerebellum/Cerebellum-MNIfnirt-maxprob-thr50-1mm.nii.gz`). It is already in FSL's MNI standard space and thus requires no additional processing.
+ 
+The Schaefer cortical parcellations[^8] are downloaded from the repository created by its authors ([https://raw.githubusercontent.com/ThomasYeoLab/CBIG/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal/Parcellations/MNI/](https://raw.githubusercontent.com/ThomasYeoLab/CBIG/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal/Parcellations/MNI/)). They show good overlap with FSL's MNI standard space and thus require no additional processing.
+ 
+Each ROI as defined by the original atlases is then isolated into its own `.nii.gz` file using FSL's `fslmaths` command. The script also generates text files listing all isolated subcortical (`SUBCORTICAL_LIST`) and cortical (`CORTICAL_LIST`) ROIs.
+ 
+### Removing ROI overlaps
+ 
+Some overlaps between the original segmentations exist (e.g., `Hypothalamus_Left-MT` and `Thalamus_Left-VA`) since these were created by different authors and clear delineation of borders is not always possible. Script `02_find_overlaps.sh` tests for pairwise overlaps between all ROIs using FSL's `fslmaths` and `fslstats` commands. All identified overlaps between ROI #1 and ROI #2 are then stored in `${ROOTDIR}/lists/${OVERLAP_FILE}`. Script `03_remove_overlaps.sh` then removes all overlaps in `${OVERLAP_FILE}` by removing the overlap between the two regions from ROI #2 using `fslmaths` (thus keeping ROI #1 unchanged).
+ 
+### Merging ROIs into new atlas
+ 
+Finally, the user can define which ROIs to include in the new atlas. This is done using the text file indicated by `${ROI_FILE}` in `source_this.sh`. Multiple individual ROIs from `${SUBCORTICAL_LIST}` and `${CORTICAL_LIST}` can be combined to form one larger ROI. Single and combined ROIs are added together to the same volume, using `fslmaths`, to form the 3D atlas file. To form the 4D atlas file, these are similarly added, but into different volumes using `fslmerge`. The 3D and 4D atlases are stored in files as defined by `${ATLAS_NAME_3D}` and  `${ATLAS_NAME_4D}`. In addition, an RGB color lookup table text file is created to accompany the atlases, and stored as indicated by `${LUT_TABLE_NAME}`.
+ 
+## Segmented ROIs
+ 
+Script-generated labels and corresponding full names of all segmented ROIs from all atlases:
 
-<table>
-<thead>
-<tr>
-<th>ROI Name</th>
-<th>Brain structure</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Amygdala_Left-Accessory-Basal-nucleus</td>
-<td>Left accessory basal nucleus</td>
-</tr>
-<tr>
-<td>Amygdala_Left-Anterior-amygdaloid-area-AAA</td>
-<td>Left anterior amygdaloid area (AAA)</td>
-</tr>
-<tr>
-<td>Amygdala_Left-Basal-nucleus</td>
-<td>Left basal nucleus</td>
-</tr>
-<tr>
-<td>Amygdala_Left-Central-nucleus</td>
-<td>Left central nucleus</td>
-</tr>
-<tr>
-<td>Amygdala_Left-Cortical-nucleus</td>
-<td>Left cortical nucleus</td>
-</tr>
-<tr>
-<td>Amygdala_Left-Corticoamygdaloid-transitio</td>
-<td>Left corticoamygdaloid transition area</td>
-</tr>
-<tr>
-<td>Amygdala_Left-Lateral-nucleus</td>
-<td>Left lateral nucleus</td>
-</tr>
-<tr>
-<td>Amygdala_Left-Medial-nucleus</td>
-<td>Left medial nucleus</td>
-</tr>
-<tr>
-<td>Amygdala_Left-Paralaminar-nucleus</td>
-<td>Left paralaminar nucleus</td>
-</tr>
-<tr>
-<td>Amygdala_Right-Accessory-Basal-nucleus</td>
-<td>Right accessory basal nucleus</td>
-</tr>
-<tr>
-<td>Amygdala_Right-Anterior-amygdaloid-area-AAA</td>
-<td>Right anterior amygdaloid area (AAA)</td>
-</tr>
-<tr>
-<td>Amygdala_Right-Basal-nucleus</td>
-<td>Right basal nucleus</td>
-</tr>
-<tr>
-<td>Amygdala_Right-Central-nucleus</td>
-<td>Right central nucleus</td>
-</tr>
-<tr>
-<td>Amygdala_Right-Cortical-nucleus</td>
-<td>Right cortical nucleus</td>
-</tr>
-<tr>
-<td>Amygdala_Right-Corticoamygdaloid-transitio</td>
-<td>Right corticoamygdaloid transition area</td>
-</tr>
-<tr>
-<td>Amygdala_Right-Lateral-nucleus</td>
-<td>Right lateral nucleus</td>
-</tr>
-<tr>
-<td>Amygdala_Right-Medial-nucleus</td>
-<td>Right medial nucleus</td>
-</tr>
-<tr>
-<td>Amygdala_Right-Paralaminar-nucleus</td>
-<td>Right paralaminar nucleus</td>
-</tr>
-</tbody>
-</table><h3 id="hippocampus">Hippocampus</h3>
+### Amygdala
 
-<table>
-<thead>
-<tr>
-<th>ROI Name</th>
-<th>Brain structure</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Hippocampus_Left-CA1-body</td>
-<td>Left CA1 body</td>
-</tr>
-<tr>
-<td>Hippocampus_Left-CA1-head</td>
-<td>Left CA1 head</td>
-</tr>
-<tr>
-<td>Hippocampus_Left-CA3-body</td>
-<td>Left CA3 body</td>
-</tr>
-<tr>
-<td>Hippocampus_Left-CA3-head</td>
-<td>Left CA3 head</td>
-</tr>
-<tr>
-<td>Hippocampus_Left-CA4-body</td>
-<td>Left CA4 body</td>
-</tr>
-<tr>
-<td>Hippocampus_Left-CA4-head</td>
-<td>Left CA4 head</td>
-</tr>
-<tr>
-<td>Hippocampus_Left-fimbria</td>
-<td>Left fimbria</td>
-</tr>
-<tr>
-<td>Hippocampus_Left-GC-ML-DG-body</td>
-<td>Left granule cell and molecular layer of the dentate gyrus - body</td>
-</tr>
-<tr>
-<td>Hippocampus_Left-GC-ML-DG-head</td>
-<td>Left granule cell and molecular layer of the dentate gyrus - head</td>
-</tr>
-<tr>
-<td>Hippocampus_Left-HATA</td>
-<td>Left hippocampal amygdala transition area (HATA)</td>
-</tr>
-<tr>
-<td>Hippocampus_Left-hippocampal-fissure</td>
-<td>Left hippocampal fissure</td>
-</tr>
-<tr>
-<td>Hippocampus_Left-HP-tail</td>
-<td>Left HP tail</td>
-</tr>
-<tr>
-<td>Hippocampus_Left-molecular-layer-HP-body</td>
-<td>Left molecular layer HP body</td>
-</tr>
-<tr>
-<td>Hippocampus_Left-molecular-layer-HP-head</td>
-<td>Left molecular layer HP head</td>
-</tr>
-<tr>
-<td>Hippocampus_Left-parasubiculum</td>
-<td>Left parasubiculum</td>
-</tr>
-<tr>
-<td>Hippocampus_Left-presubiculum-body</td>
-<td>Left presubiculum body</td>
-</tr>
-<tr>
-<td>Hippocampus_Left-presubiculum-head</td>
-<td>Left presubiculum head</td>
-</tr>
-<tr>
-<td>Hippocampus_Left-subiculum-body</td>
-<td>Left subiculum body</td>
-</tr>
-<tr>
-<td>Hippocampus_Left-subiculum-head</td>
-<td>Left subiculum head</td>
-</tr>
-<tr>
-<td>Hippocampus_Right-CA1-body</td>
-<td>Right CA1 body</td>
-</tr>
-<tr>
-<td>Hippocampus_Right-CA1-head</td>
-<td>Right CA1 head</td>
-</tr>
-<tr>
-<td>Hippocampus_Right-CA3-body</td>
-<td>Right CA3 body</td>
-</tr>
-<tr>
-<td>Hippocampus_Right-CA3-head</td>
-<td>Right CA3 head</td>
-</tr>
-<tr>
-<td>Hippocampus_Right-CA4-body</td>
-<td>Right CA4 body</td>
-</tr>
-<tr>
-<td>Hippocampus_Right-CA4-head</td>
-<td>Right CA4 head</td>
-</tr>
-<tr>
-<td>Hippocampus_Right-fimbria</td>
-<td>Right fimbria</td>
-</tr>
-<tr>
-<td>Hippocampus_Right-GC-ML-DG-body</td>
-<td>Right granule cell and molecular layer of the dentate gyrus - body</td>
-</tr>
-<tr>
-<td>Hippocampus_Right-GC-ML-DG-head</td>
-<td>Right granule cell and molecular layer of the dentate gyrus - head</td>
-</tr>
-<tr>
-<td>Hippocampus_Right-HATA</td>
-<td>Right hippocampal amygdala transition area (HATA)</td>
-</tr>
-<tr>
-<td>Hippocampus_Right-hippocampal-fissure</td>
-<td>Right hippocampal fissure</td>
-</tr>
-<tr>
-<td>Hippocampus_Right-HP-tail</td>
-<td>Right HP tail</td>
-</tr>
-<tr>
-<td>Hippocampus_Right-molecular-layer-HP-body</td>
-<td>Right molecular layer HP body</td>
-</tr>
-<tr>
-<td>Hippocampus_Right-molecular-layer-HP-head</td>
-<td>Right molecular layer HP head</td>
-</tr>
-<tr>
-<td>Hippocampus_Right-parasubiculum</td>
-<td>Right parasubiculum</td>
-</tr>
-<tr>
-<td>Hippocampus_Right-presubiculum-body</td>
-<td>Right presubiculum body</td>
-</tr>
-<tr>
-<td>Hippocampus_Right-presubiculum-head</td>
-<td>Right presubiculum head</td>
-</tr>
-<tr>
-<td>Hippocampus_Right-subiculum-body</td>
-<td>Right subiculum body</td>
-</tr>
-</tbody>
-</table><h3 id="thalamus">Thalamus</h3>
+|ROI Name|Brain structure|
+|--|--|
+|Amygdala_Left-Accessory-Basal-nucleus|Left accessory basal nucleus
+|Amygdala_Left-Anterior-amygdaloid-area-AAA|Left anterior amygdaloid area (AAA)|
+|Amygdala_Left-Basal-nucleus| Left basal nucleus |
+|Amygdala_Left-Central-nucleus|Left central nucleus|
+|Amygdala_Left-Cortical-nucleus|Left cortical nucleus|
+|Amygdala_Left-Corticoamygdaloid-transitio|Left corticoamygdaloid transition area|
+|Amygdala_Left-Lateral-nucleus|Left lateral nucleus|
+|Amygdala_Left-Medial-nucleus|Left medial nucleus|
+|Amygdala_Left-Paralaminar-nucleus|Left paralaminar nucleus|
+|Amygdala_Right-Accessory-Basal-nucleus|Right accessory basal nucleus|
+|Amygdala_Right-Anterior-amygdaloid-area-AAA|Right anterior amygdaloid area (AAA)|
+|Amygdala_Right-Basal-nucleus|Right basal nucleus|
+|Amygdala_Right-Central-nucleus|Right central nucleus|
+|Amygdala_Right-Cortical-nucleus|Right cortical nucleus|
+|Amygdala_Right-Corticoamygdaloid-transitio|Right corticoamygdaloid transition area|
+|Amygdala_Right-Lateral-nucleus|Right lateral nucleus|
+|Amygdala_Right-Medial-nucleus|Right medial nucleus|
+|Amygdala_Right-Paralaminar-nucleus|Right paralaminar nucleus|
 
-<table>
-<thead>
-<tr>
-<th>ROI Name</th>
-<th>Brain structure</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Thalamus_Left-AV</td>
-<td>Left anteroventral nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Left-CeM</td>
-<td>Left central medial nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Left-CL</td>
-<td>Left central lateral nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Left-CM</td>
-<td>Left centromedian nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Left-LD</td>
-<td>Left laterodorsal nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Left-LGN</td>
-<td>Left lateral geniculate nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Left-LP</td>
-<td>Left lateral posterior nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Left-L-Sg</td>
-<td>Left limitans nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Left-MDl</td>
-<td>Left mediodorsal lateral parvocellular nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Left-MDm</td>
-<td>Left mediodorsal medial magnocellular nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Left-MGN</td>
-<td>Left medial geniculate nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Left-MV(Re)</td>
-<td>Left reuniens (medial ventral) nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Left-Pf</td>
-<td>Left parafascicular nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Left-PuA</td>
-<td>Left pulvinar anterior nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Left-PuI</td>
-<td>Left pulvinar inferior nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Left-PuL</td>
-<td>Left pulvinar lateral nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Left-PuM</td>
-<td>Left pulvinar medial nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Left-VAmc</td>
-<td>Left ventral anterior magnocellular nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Left-VA</td>
-<td>Left ventral anterior nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Left-VLa</td>
-<td>Left ventral lateral anterior nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Left-VLp</td>
-<td>Left ventral lateral posterior nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Left-VM</td>
-<td>Left ventromedial nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Left-VPL</td>
-<td>Left ventral posterolateral nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Right-AV</td>
-<td>Right anteroventral nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Right-CeM</td>
-<td>Right central medial nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Right-CL</td>
-<td>Right central lateral nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Right-CM</td>
-<td>Right centromedian nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Right-LD</td>
-<td>Right laterodorsal nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Right-LGN</td>
-<td>Right lateral geniculate nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Right-LP</td>
-<td>Right lateral posterior nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Right-L-Sg</td>
-<td>Right limitans nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Right-MDl</td>
-<td>Right mediodorsal lateral parvocellular nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Right-MDm</td>
-<td>Right mediodorsal medial magnocellular nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Right-MGN</td>
-<td>Right medial geniculate nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Right-MV(Re)</td>
-<td>Right reuniens (medial ventral) nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Right-Pc</td>
-<td>Right paracentral nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Right-Pf</td>
-<td>Right parafascicular nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Right-PuA</td>
-<td>Right pulvinar anterior nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Right-PuI</td>
-<td>Right pulvinar inferior nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Right-PuL</td>
-<td>Right pulvinar lateral nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Right-PuM</td>
-<td>Right pulvinar medial nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Right-VAmc</td>
-<td>Right ventral anterior magnocellular nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Right-VA</td>
-<td>Right ventral anterior nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Right-VLa</td>
-<td>Right ventral lateral anterior nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Right-VLp</td>
-<td>Right ventral lateral posterior nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Right-VM</td>
-<td>Right ventromedial nucleus</td>
-</tr>
-<tr>
-<td>Thalamus_Right-VPL</td>
-<td>Right ventral posterolateral nucleus</td>
-</tr>
-</tbody>
-</table><h3 id="striatum">Striatum</h3>
+### Hippocampus
 
-<table>
-<thead>
-<tr>
-<th>ROI Name</th>
-<th>Brain structure</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Striatum_Left-Accumbens-area</td>
-<td>Left accumbens area</td>
-</tr>
-<tr>
-<td>Striatum_Left-Caudate</td>
-<td>Left caudate</td>
-</tr>
-<tr>
-<td>Striatum_Left-Pallidum</td>
-<td>Left pallidum</td>
-</tr>
-<tr>
-<td>Striatum_Left-Putamen</td>
-<td>Left putamen</td>
-</tr>
-<tr>
-<td>Striatum_Right-Accumbens-area</td>
-<td>Right accumbens area</td>
-</tr>
-<tr>
-<td>Striatum_Right-Caudate</td>
-<td>Right caudate</td>
-</tr>
-<tr>
-<td>Striatum_Right-Pallidum</td>
-<td>Right pallidum</td>
-</tr>
-<tr>
-<td>Striatum_Right-Putamen</td>
-<td>Right putamen</td>
-</tr>
-</tbody>
-</table><h3 id="hypothalamus">Hypothalamus</h3>
+|ROI Name|Brain structure|
+|--|--|
+|Hippocampus_Left-CA1-body|Left CA1 body|
+|Hippocampus_Left-CA1-head|Left CA1 head|
+|Hippocampus_Left-CA3-body|Left CA3 body|
+|Hippocampus_Left-CA3-head|Left CA3 head|
+|Hippocampus_Left-CA4-body|Left CA4 body|
+|Hippocampus_Left-CA4-head|Left CA4 head|
+|Hippocampus_Left-fimbria|Left fimbria|
+|Hippocampus_Left-GC-ML-DG-body|Left granule cell and molecular layer of the dentate gyrus - body|
+|Hippocampus_Left-GC-ML-DG-head|Left granule cell and molecular layer of the dentate gyrus - head|
+|Hippocampus_Left-HATA|Left hippocampal amygdala transition area (HATA)|
+|Hippocampus_Left-hippocampal-fissure|Left hippocampal fissure|
+|Hippocampus_Left-HP-tail|Left HP tail|
+|Hippocampus_Left-molecular-layer-HP-body|Left molecular layer HP body|
+|Hippocampus_Left-molecular-layer-HP-head|Left molecular layer HP head|
+|Hippocampus_Left-parasubiculum|Left parasubiculum|
+|Hippocampus_Left-presubiculum-body|Left presubiculum body|
+|Hippocampus_Left-presubiculum-head|Left presubiculum head|
+|Hippocampus_Left-subiculum-body|Left subiculum body|
+|Hippocampus_Left-subiculum-head|Left subiculum head|
+|Hippocampus_Right-CA1-body|Right CA1 body|
+|Hippocampus_Right-CA1-head|Right CA1 head|
+|Hippocampus_Right-CA3-body|Right CA3 body|
+|Hippocampus_Right-CA3-head|Right CA3 head|
+|Hippocampus_Right-CA4-body|Right CA4 body|
+|Hippocampus_Right-CA4-head|Right CA4 head|
+|Hippocampus_Right-fimbria|Right fimbria|
+|Hippocampus_Right-GC-ML-DG-body|Right granule cell and molecular layer of the dentate gyrus - body|
+|Hippocampus_Right-GC-ML-DG-head|Right granule cell and molecular layer of the dentate gyrus - head|
+|Hippocampus_Right-HATA|Right hippocampal amygdala transition area (HATA)|
+|Hippocampus_Right-hippocampal-fissure|Right hippocampal fissure|
+|Hippocampus_Right-HP-tail|Right HP tail|
+|Hippocampus_Right-molecular-layer-HP-body|Right molecular layer HP body|
+|Hippocampus_Right-molecular-layer-HP-head|Right molecular layer HP head|
+|Hippocampus_Right-parasubiculum|Right parasubiculum|
+|Hippocampus_Right-presubiculum-body|Right presubiculum body|
+|Hippocampus_Right-presubiculum-head|Right presubiculum head|
+|Hippocampus_Right-subiculum-body|Right subiculum body| |Hippocampus_Right-subiculum-head|Right subiculum head|
 
-<table>
-<thead>
-<tr>
-<th>ROI Name</th>
-<th>Brain structure</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Hypothalamus_Left-AC</td>
-<td>Left anterior commissure</td>
-</tr>
-<tr>
-<td>Hypothalamus_Left-AHA</td>
-<td>Left anterior hypothalamic area</td>
-</tr>
-<tr>
-<td>Hypothalamus_Left-AN</td>
-<td>Left arcuate nucleus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Left-BNST</td>
-<td>Left bed nucleus of the stria terminalis</td>
-</tr>
-<tr>
-<td>Hypothalamus_Left-dB</td>
-<td>Left diagonal band of Broca</td>
-</tr>
-<tr>
-<td>Hypothalamus_Left-DM</td>
-<td>Left dorsomedial hypothalamic nucleus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Left-DPEH</td>
-<td>Left dorsal periventricular nucleus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Left-FX</td>
-<td>Left fornix</td>
-</tr>
-<tr>
-<td>Hypothalamus_Left-ITP</td>
-<td>Left inferior thalamic peduncle</td>
-</tr>
-<tr>
-<td>Hypothalamus_Left-LH</td>
-<td>Left lateral hypothalamus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Left-MM</td>
-<td>Left mammillary bodies</td>
-</tr>
-<tr>
-<td>Hypothalamus_Left-MPO</td>
-<td>Left medial preoptic nucleus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Left-MT</td>
-<td>Left mammillothalamic tract</td>
-</tr>
-<tr>
-<td>Hypothalamus_Left-NBM</td>
-<td>Left nucleus basalis of Meynert</td>
-</tr>
-<tr>
-<td>Hypothalamus_Left-Pa</td>
-<td>Left paraventricular nucleus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Left-Pe</td>
-<td>Left periventricular nucleus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Left-PH</td>
-<td>Left posterior hypothalamus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Left-RN</td>
-<td>Left red nucleus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Left-SC</td>
-<td>Left suprachiasmatic nucleus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Left-SN</td>
-<td>Left substantia nigra</td>
-</tr>
-<tr>
-<td>Hypothalamus_Left-SO</td>
-<td>Left supraoptic nucleus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Left-STN</td>
-<td>Left subthalamic nucleus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Left-TM</td>
-<td>Left tuberomammillary nucleus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Left-VM</td>
-<td>Left ventromedial hypothalamus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Left-ZI</td>
-<td>Left zona incerta</td>
-</tr>
-<tr>
-<td>Hypothalamus_Right-AC</td>
-<td>Right anterior commissure</td>
-</tr>
-<tr>
-<td>Hypothalamus_Right-AHA</td>
-<td>Right anterior hypothalamic area</td>
-</tr>
-<tr>
-<td>Hypothalamus_Right-AN</td>
-<td>Right arcuate nucleus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Right-BNST</td>
-<td>Right bed nucleus of the stria terminalis</td>
-</tr>
-<tr>
-<td>Hypothalamus_Right-dB</td>
-<td>Right diagonal band of Broca</td>
-</tr>
-<tr>
-<td>Hypothalamus_Right-DM</td>
-<td>Right dorsomedial hypothalamic nucleus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Right-DPEH</td>
-<td>Right dorsal periventricular nucleus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Right-FX</td>
-<td>Right fornix</td>
-</tr>
-<tr>
-<td>Hypothalamus_Right-ITP</td>
-<td>Right inferior thalamic peduncle</td>
-</tr>
-<tr>
-<td>Hypothalamus_Right-LH</td>
-<td>Right lateral hypothalamus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Right-MM</td>
-<td>Right mammillary bodies</td>
-</tr>
-<tr>
-<td>Hypothalamus_Right-MPO</td>
-<td>Right medial preoptic nucleus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Right-MT</td>
-<td>Right mammillothalamic tract</td>
-</tr>
-<tr>
-<td>Hypothalamus_Right-NBM</td>
-<td>Right nucleus basalis of Meynert</td>
-</tr>
-<tr>
-<td>Hypothalamus_Right-Pa</td>
-<td>Right paraventricular nucleus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Right-Pe</td>
-<td>Right periventricular nucleus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Right-PH</td>
-<td>Right posterior hypothalamus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Right-RN</td>
-<td>Right red nucleus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Right-SC</td>
-<td>Right suprachiasmatic nucleus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Right-SN</td>
-<td>Right substantia nigra</td>
-</tr>
-<tr>
-<td>Hypothalamus_Right-SO</td>
-<td>Right supraoptic nucleus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Right-STN</td>
-<td>Right Subthalamic nucleus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Right-TM</td>
-<td>Right tuberomammillary nucleus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Right-VM</td>
-<td>Right ventromedial hypothalamus</td>
-</tr>
-<tr>
-<td>Hypothalamus_Right-ZI</td>
-<td>Right zona incerta</td>
-</tr>
-</tbody>
-</table><h3 id="midbrainbrain-stem">Midbrain/brain stem</h3>
+### Thalamus
 
-<table>
-<thead>
-<tr>
-<th>ROI Name</th>
-<th>Brain structure</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>AAN_DR</td>
-<td>Dorsal raphe nucleus</td>
-</tr>
-<tr>
-<td>AAN_LC</td>
-<td>Locus coeruleus nucleus</td>
-</tr>
-<tr>
-<td>AAN_MRF</td>
-<td>Midbrain reticular formation</td>
-</tr>
-<tr>
-<td>AAN_MR</td>
-<td>Median raphe nucleus</td>
-</tr>
-<tr>
-<td>AAN_PAG</td>
-<td>Periaqueductal gray</td>
-</tr>
-<tr>
-<td>AAN_PBC</td>
-<td>Parabrachial complex</td>
-</tr>
-<tr>
-<td>AAN_PO</td>
-<td>Pontis oralis nucleus</td>
-</tr>
-<tr>
-<td>AAN_PPN</td>
-<td>Pendunculopontine nucleus</td>
-</tr>
-<tr>
-<td>AAN_VTA</td>
-<td>Ventral tegmental area</td>
-</tr>
-</tbody>
-</table><h3 id="cerebellum">Cerebellum</h3>
+|ROI Name|Brain structure|
+|--|--|
+|Thalamus_Left-AV|Left anteroventral nucleus|
+|Thalamus_Left-CeM|Left central medial nucleus|
+|Thalamus_Left-CL|Left central lateral nucleus|
+|Thalamus_Left-CM|Left centromedian nucleus|
+|Thalamus_Left-LD|Left laterodorsal nucleus|
+|Thalamus_Left-LGN|Left lateral geniculate nucleus|
+|Thalamus_Left-LP|Left lateral posterior nucleus|
+|Thalamus_Left-L-Sg|Left limitans nucleus|
+|Thalamus_Left-MDl|Left mediodorsal lateral parvocellular nucleus|
+|Thalamus_Left-MDm|Left mediodorsal medial magnocellular nucleus|
+|Thalamus_Left-MGN|Left medial geniculate nucleus|
+|Thalamus_Left-MV(Re)|Left reuniens (medial ventral) nucleus|
+|Thalamus_Left-Pf|Left parafascicular nucleus|
+|Thalamus_Left-PuA|Left pulvinar anterior nucleus|
+|Thalamus_Left-PuI|Left pulvinar inferior nucleus|
+|Thalamus_Left-PuL|Left pulvinar lateral nucleus|
+|Thalamus_Left-PuM|Left pulvinar medial nucleus|
+|Thalamus_Left-VAmc|Left ventral anterior magnocellular nucleus|
+|Thalamus_Left-VA|Left ventral anterior nucleus|
+|Thalamus_Left-VLa|Left ventral lateral anterior nucleus|
+|Thalamus_Left-VLp|Left ventral lateral posterior nucleus|
+|Thalamus_Left-VM|Left ventromedial nucleus|
+|Thalamus_Left-VPL|Left ventral posterolateral nucleus|
+|Thalamus_Right-AV|Right anteroventral nucleus|
+|Thalamus_Right-CeM|Right central medial nucleus|
+|Thalamus_Right-CL|Right central lateral nucleus|
+|Thalamus_Right-CM|Right centromedian nucleus|
+|Thalamus_Right-LD|Right laterodorsal nucleus|
+|Thalamus_Right-LGN|Right lateral geniculate nucleus|
+|Thalamus_Right-LP|Right lateral posterior nucleus|
+|Thalamus_Right-L-Sg|Right limitans nucleus|
+|Thalamus_Right-MDl|Right mediodorsal lateral parvocellular nucleus|
+|Thalamus_Right-MDm|Right mediodorsal medial magnocellular nucleus|
+|Thalamus_Right-MGN|Right medial geniculate nucleus|
+|Thalamus_Right-MV(Re)|Right reuniens (medial ventral) nucleus|
+|Thalamus_Right-Pc|Right paracentral nucleus|
+|Thalamus_Right-Pf|Right parafascicular nucleus|
+|Thalamus_Right-PuA|Right pulvinar anterior nucleus|
+|Thalamus_Right-PuI|Right pulvinar inferior nucleus|
+|Thalamus_Right-PuL|Right pulvinar lateral nucleus|
+|Thalamus_Right-PuM|Right pulvinar medial nucleus|
+|Thalamus_Right-VAmc|Right ventral anterior magnocellular nucleus|
+|Thalamus_Right-VA|Right ventral anterior nucleus|
+|Thalamus_Right-VLa|Right ventral lateral anterior nucleus|
+|Thalamus_Right-VLp|Right ventral lateral posterior nucleus|
+|Thalamus_Right-VM|Right ventromedial nucleus|
+|Thalamus_Right-VPL|Right ventral posterolateral nucleus|
 
-<table>
-<thead>
-<tr>
-<th>ROI Name</th>
-<th>Brain structure</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Cerebellum_LeftCrusII</td>
-<td>Left Crus II</td>
-</tr>
-<tr>
-<td>Cerebellum_LeftCrusI</td>
-<td>Left Crus I</td>
-</tr>
-<tr>
-<td>Cerebellum_LeftI-IV</td>
-<td>Left IV</td>
-</tr>
-<tr>
-<td>Cerebellum_LeftIX</td>
-<td>Left IX</td>
-</tr>
-<tr>
-<td>Cerebellum_LeftVIIb</td>
-<td>Left VIIb</td>
-</tr>
-<tr>
-<td>Cerebellum_LeftVIIIa</td>
-<td>Left VIIIa</td>
-</tr>
-<tr>
-<td>Cerebellum_LeftVIIIb</td>
-<td>Left VIIIb</td>
-</tr>
-<tr>
-<td>Cerebellum_LeftVI</td>
-<td>Left VI</td>
-</tr>
-<tr>
-<td>Cerebellum_LeftV</td>
-<td>Left V</td>
-</tr>
-<tr>
-<td>Cerebellum_LeftX</td>
-<td>Left X</td>
-</tr>
-<tr>
-<td>Cerebellum_RightCrusII</td>
-<td>Right Crus II</td>
-</tr>
-<tr>
-<td>Cerebellum_RightCrusI</td>
-<td>Right Crus I</td>
-</tr>
-<tr>
-<td>Cerebellum_RightI-IV</td>
-<td>Right IV</td>
-</tr>
-<tr>
-<td>Cerebellum_RightIX</td>
-<td>Right IX</td>
-</tr>
-<tr>
-<td>Cerebellum_RightVIIb</td>
-<td>Right VIIb</td>
-</tr>
-<tr>
-<td>Cerebellum_RightVIIIa</td>
-<td>Right VIIIa</td>
-</tr>
-<tr>
-<td>Cerebellum_RightVIIIb</td>
-<td>Right VIIIb</td>
-</tr>
-<tr>
-<td>Cerebellum_RightVI</td>
-<td>Right VI</td>
-</tr>
-<tr>
-<td>Cerebellum_RightV</td>
-<td>Right V</td>
-</tr>
-<tr>
-<td>Cerebellum_RightX</td>
-<td>Right X</td>
-</tr>
-<tr>
-<td>Cerebellum_VermisCrusII</td>
-<td>Vermis Crus II</td>
-</tr>
-<tr>
-<td>Cerebellum_VermisCrusI</td>
-<td>Vermis Crus I</td>
-</tr>
-<tr>
-<td>Cerebellum_VermisIX</td>
-<td>Vermis IX</td>
-</tr>
-<tr>
-<td>Cerebellum_VermisVIIb</td>
-<td>Vermis VIIb</td>
-</tr>
-<tr>
-<td>Cerebellum_VermisVIIIa</td>
-<td>Vermis VIIIa</td>
-</tr>
-<tr>
-<td>Cerebellum_VermisVIIIb</td>
-<td>Vermis VIIIb</td>
-</tr>
-<tr>
-<td>Cerebellum_VermisVI</td>
-<td>Vermis VI</td>
-</tr>
-<tr>
-<td>Cerebellum_VermisX</td>
-<td>Vermis X</td>
-</tr>
-</tbody>
-</table><h2 id="references">References</h2>
-<hr class="footnotes-sep">
-<section class="footnotes">
-<ol class="footnotes-list">
-<li id="fn1" class="footnote-item"><p>Saygin, Z.M., Kliemann, D., Iglesias, J.E., van der Kouwe, A.J.W., Boyd, E., Reuter, M., Stevens, A., Van Leemput, K., Mc Kee, A., Frosch, M.P., Fischl, B., Augustinack, J.C. High-resolution magnetic resonance imaging reveals nuclei of the human amygdala: manual segmentation to automatic atlas. <em>Neuroimage</em>. 2017;155:370-382. <a href="#fnref1" class="footnote-backref">↩︎</a> <a href="#fnref1:1" class="footnote-backref">↩︎</a> <a href="#fnref1:2" class="footnote-backref">↩︎</a></p>
-</li>
-<li id="fn2" class="footnote-item"><p>Iglesias, J.E., Augustinack, J.C., Nguyen, K., Player, C.M., Player, A., Wright, M., Roy, N., Frosch, M.P., Mc Kee, A.C., Wald, L.L., Fischl, B., and Van Leemput, K. A computational atlas of the hippocampal formation using ex vivo, ultra-high resolution MRI: Application to adaptive segmentation of in vivo MRI. <em>Neuroimage</em>. 2015;115:117-137. <a href="#fnref2" class="footnote-backref">↩︎</a> <a href="#fnref2:1" class="footnote-backref">↩︎</a> <a href="#fnref2:2" class="footnote-backref">↩︎</a></p>
-</li>
-<li id="fn3" class="footnote-item"><p>Iglesias, J.E., Insausti, R., Lerma-Usabiaga, G., Bocchetta, M., Van Leemput, K., Greve, D., van der Kouwe, A., Caballero-Gaudes, C., Paz-Alonso, P. A probabilistic atlas of the human thalamic nuclei combining ex vivo MRI and histology. <em>Neuroimage</em>. 2018;183:314-326. <a href="#fnref3" class="footnote-backref">↩︎</a> <a href="#fnref3:1" class="footnote-backref">↩︎</a> <a href="#fnref3:2" class="footnote-backref">↩︎</a></p>
-</li>
-<li id="fn4" class="footnote-item"><p>Fischl, B., Salat, D.H., Busa, E., Albert, M., Dieterich, M., Haselgrove, C., van der Kouwe, A., Killiany, R., Kennedy, D., Klaveness, S., Montillo, A., Makris, N., Rosen, B., Dale, A.M. Whole brain segmentation: automated labeling of neuroanatomical structures in the human brain. <em>Neuron</em>. 2002;33(3):341-55. <a href="#fnref4" class="footnote-backref">↩︎</a> <a href="#fnref4:1" class="footnote-backref">↩︎</a> <a href="#fnref4:2" class="footnote-backref">↩︎</a></p>
-</li>
-<li id="fn5" class="footnote-item"><p>Neudorfer, C., Germann, J., Elias, G.J.B., Gramer, R., Boutet, A., Lozano, A.M. A high-resolution in vivo magnetic resonance imaging atlas of the human hypothalamic region. <em>Scientific Data</em>. 2020;7(1):305. <a href="#fnref5" class="footnote-backref">↩︎</a> <a href="#fnref5:1" class="footnote-backref">↩︎</a> <a href="#fnref5:2" class="footnote-backref">↩︎</a></p>
-</li>
-<li id="fn6" class="footnote-item"><p>Edlow, B.L., Takahashi, E., Wu, O., Benner, T., Dai, G., Bu, L., Grant, P.E., Greer, D.M., Greenberg, S.M., Kinney, H.C., Folkerth, R.D. Neuroanatomic connectivity of the human ascending arousal system critical to consciousness and its disorders. <em>J Neuropathol Exp Neurol</em>. 2012;71(6):531-46. <a href="#fnref6" class="footnote-backref">↩︎</a> <a href="#fnref6:1" class="footnote-backref">↩︎</a> <a href="#fnref6:2" class="footnote-backref">↩︎</a></p>
-</li>
-<li id="fn7" class="footnote-item"><p>Diedrichsen, J., Balsters, J.H., Flavell, J., Cussans, E., Ramnani, N. A probabilistic MR atlas of the human cerebellum.  <em>Neuroimage</em>. 2009;46(1):39-46. <a href="#fnref7" class="footnote-backref">↩︎</a> <a href="#fnref7:1" class="footnote-backref">↩︎</a> <a href="#fnref7:2" class="footnote-backref">↩︎</a></p>
-</li>
-<li id="fn8" class="footnote-item"><p>Schaefer, A., Kong, R., Gordon, E.M., Laumann, T.O., Zuo, X.N., Holmes, A.J., Eickhoff, S.B., Yeo, B.T.T. Local-Global Parcellation of the Human Cerebral Cortex from Intrinsic Functional Connectivity MRI. <em>Cereb Cortex</em>. 2018;28(9):3095-3114. <a href="#fnref8" class="footnote-backref">↩︎</a> <a href="#fnref8:1" class="footnote-backref">↩︎</a> <a href="#fnref8:2" class="footnote-backref">↩︎</a></p>
-</li>
-<li id="fn9" class="footnote-item"><p>Fonov, V., Evans, A.C., Botteron, K., Almli, C.R., McKinstry, R.C., Collins, D.L. Brain Development Cooperative Group. Unbiased average age-appropriate atlases for pediatric studies. <em>Neuroimage</em>. 2011;54(1):313-27. <a href="#fnref9" class="footnote-backref">↩︎</a></p>
-</li>
-<li id="fn10" class="footnote-item"><p>Jenkinson, M., Bannister, P., Brady, J.M. and Smith, S.M. Improved Optimisation for the Robust and Accurate Linear Registration and Motion Correction of Brain Images. <em>NeuroImage</em>. 2002;17(2), 825-841. <a href="#fnref10" class="footnote-backref">↩︎</a> <a href="#fnref10:1" class="footnote-backref">↩︎</a></p>
-</li>
-</ol>
-</section>
+### Striatum
 
+|ROI Name|Brain structure|
+|--|--|
+|Striatum_Left-Accumbens-area|Left accumbens area|
+|Striatum_Left-Caudate|Left caudate|
+|Striatum_Left-Pallidum|Left pallidum|
+|Striatum_Left-Putamen|Left putamen|
+|Striatum_Right-Accumbens-area|Right accumbens area|
+|Striatum_Right-Caudate|Right caudate|
+|Striatum_Right-Pallidum|Right pallidum|
+|Striatum_Right-Putamen|Right putamen|
+
+### Hypothalamus
+
+|ROI Name|Brain structure|
+|--|--|
+|Hypothalamus_Left-AC|Left anterior commissure|
+|Hypothalamus_Left-AHA|Left anterior hypothalamic area|
+|Hypothalamus_Left-AN|Left arcuate nucleus|
+|Hypothalamus_Left-BNST|Left bed nucleus of the stria terminalis|
+|Hypothalamus_Left-dB|Left diagonal band of Broca|
+|Hypothalamus_Left-DM|Left dorsomedial hypothalamic nucleus|
+|Hypothalamus_Left-DPEH|Left dorsal periventricular nucleus|
+|Hypothalamus_Left-FX|Left fornix|
+|Hypothalamus_Left-ITP|Left inferior thalamic peduncle|
+|Hypothalamus_Left-LH|Left lateral hypothalamus |
+|Hypothalamus_Left-MM|Left mammillary bodies|
+|Hypothalamus_Left-MPO|Left medial preoptic nucleus|
+|Hypothalamus_Left-MT|Left mammillothalamic tract|
+|Hypothalamus_Left-NBM|Left nucleus basalis of Meynert|
+|Hypothalamus_Left-Pa|Left paraventricular nucleus|
+|Hypothalamus_Left-Pe|Left periventricular nucleus|
+|Hypothalamus_Left-PH|Left posterior hypothalamus|
+|Hypothalamus_Left-RN|Left red nucleus|
+|Hypothalamus_Left-SC|Left suprachiasmatic nucleus|
+|Hypothalamus_Left-SN|Left substantia nigra|
+|Hypothalamus_Left-SO|Left supraoptic nucleus|
+|Hypothalamus_Left-STN|Left subthalamic nucleus|
+|Hypothalamus_Left-TM|Left tuberomammillary nucleus|
+|Hypothalamus_Left-VM|Left ventromedial hypothalamus|
+|Hypothalamus_Left-ZI|Left zona incerta|
+|Hypothalamus_Right-AC|Right anterior commissure|
+|Hypothalamus_Right-AHA|Right anterior hypothalamic area|
+|Hypothalamus_Right-AN|Right arcuate nucleus|
+|Hypothalamus_Right-BNST|Right bed nucleus of the stria terminalis|
+|Hypothalamus_Right-dB|Right diagonal band of Broca|
+|Hypothalamus_Right-DM|Right dorsomedial hypothalamic nucleus|
+|Hypothalamus_Right-DPEH|Right dorsal periventricular nucleus|
+|Hypothalamus_Right-FX|Right fornix|
+|Hypothalamus_Right-ITP|Right inferior thalamic peduncle|
+|Hypothalamus_Right-LH|Right lateral hypothalamus |
+|Hypothalamus_Right-MM|Right mammillary bodies|
+|Hypothalamus_Right-MPO|Right medial preoptic nucleus|
+|Hypothalamus_Right-MT|Right mammillothalamic tract|
+|Hypothalamus_Right-NBM|Right nucleus basalis of Meynert|
+|Hypothalamus_Right-Pa|Right paraventricular nucleus|
+|Hypothalamus_Right-Pe|Right periventricular nucleus|
+|Hypothalamus_Right-PH|Right posterior hypothalamus|
+|Hypothalamus_Right-RN|Right red nucleus|
+|Hypothalamus_Right-SC|Right suprachiasmatic nucleus|
+|Hypothalamus_Right-SN|Right substantia nigra|
+|Hypothalamus_Right-SO|Right supraoptic nucleus|
+|Hypothalamus_Right-STN|Right Subthalamic nucleus|
+|Hypothalamus_Right-TM|Right tuberomammillary nucleus|
+|Hypothalamus_Right-VM|Right ventromedial hypothalamus|
+|Hypothalamus_Right-ZI|Right zona incerta|
+
+### Midbrain/brain stem
+
+|ROI Name|Brain structure|
+|--|--|
+|AAN_DR|Dorsal raphe nucleus|
+|AAN_LC|Locus coeruleus nucleus|
+|AAN_MRF|Midbrain reticular formation|
+|AAN_MR|Median raphe nucleus|
+|AAN_PAG|Periaqueductal gray|
+|AAN_PBC|Parabrachial complex|
+|AAN_PO|Pontis oralis nucleus|
+|AAN_PPN|Pendunculopontine nucleus|
+|AAN_VTA|Ventral tegmental area|
+
+### Cerebellum
+
+|ROI Name|Brain structure|
+|--|--|
+|Cerebellum_LeftCrusII|Left Crus II|
+|Cerebellum_LeftCrusI|Left Crus I|
+|Cerebellum_LeftI-IV|Left IV|
+|Cerebellum_LeftIX|Left IX|
+|Cerebellum_LeftVIIb|Left VIIb|
+|Cerebellum_LeftVIIIa|Left VIIIa|
+|Cerebellum_LeftVIIIb|Left VIIIb|
+|Cerebellum_LeftVI|Left VI|
+|Cerebellum_LeftV|Left V|
+|Cerebellum_LeftX|Left X|
+|Cerebellum_RightCrusII|Right Crus II|
+|Cerebellum_RightCrusI|Right Crus I|
+|Cerebellum_RightI-IV|Right IV|
+|Cerebellum_RightIX|Right IX|
+|Cerebellum_RightVIIb|Right VIIb|
+|Cerebellum_RightVIIIa|Right VIIIa|
+|Cerebellum_RightVIIIb|Right VIIIb|
+|Cerebellum_RightVI|Right VI|
+|Cerebellum_RightV|Right V|
+|Cerebellum_RightX|Right X|
+|Cerebellum_VermisCrusII|Vermis Crus II|
+|Cerebellum_VermisCrusI|Vermis Crus I|
+|Cerebellum_VermisIX|Vermis IX|
+|Cerebellum_VermisVIIb|Vermis VIIb|
+|Cerebellum_VermisVIIIa|Vermis VIIIa|
+|Cerebellum_VermisVIIIb|Vermis VIIIb|
+|Cerebellum_VermisVI|Vermis VI|
+|Cerebellum_VermisX|Vermis X|
+ 
+## References
+
+[^1]: Saygin, Z.M., Kliemann, D., Iglesias, J.E., van der Kouwe, A.J.W., Boyd, E., Reuter, M., Stevens, A., Van Leemput, K., Mc Kee, A., Frosch, M.P., Fischl, B., Augustinack, J.C. High-resolution magnetic resonance imaging reveals nuclei of the human amygdala: manual segmentation to automatic atlas. *Neuroimage*. 2017;155:370-382.
+ 
+[^2]: Iglesias, J.E., Augustinack, J.C., Nguyen, K., Player, C.M., Player, A., Wright, M., Roy, N., Frosch, M.P., Mc Kee, A.C., Wald, L.L., Fischl, B., and Van Leemput, K. A computational atlas of the hippocampal formation using ex vivo, ultra-high resolution MRI: Application to adaptive segmentation of in vivo MRI. *Neuroimage*. 2015;115:117-137.
+ 
+[^3]: Iglesias, J.E., Insausti, R., Lerma-Usabiaga, G., Bocchetta, M., Van Leemput, K., Greve, D., van der Kouwe, A., Caballero-Gaudes, C., Paz-Alonso, P. A probabilistic atlas of the human thalamic nuclei combining ex vivo MRI and histology. *Neuroimage*. 2018;183:314-326.
+ 
+[^4]: Fischl, B., Salat, D.H., Busa, E., Albert, M., Dieterich, M., Haselgrove, C., van der Kouwe, A., Killiany, R., Kennedy, D., Klaveness, S., Montillo, A., Makris, N., Rosen, B., Dale, A.M. Whole brain segmentation: automated labeling of neuroanatomical structures in the human brain. *Neuron*. 2002;33(3):341-55. 
+ 
+[^5]: Neudorfer, C., Germann, J., Elias, G.J.B., Gramer, R., Boutet, A., Lozano, A.M. A high-resolution in vivo magnetic resonance imaging atlas of the human hypothalamic region. *Scientific Data*. 2020;7(1):305.
+ 
+[^6]: Edlow, B.L., Takahashi, E., Wu, O., Benner, T., Dai, G., Bu, L., Grant, P.E., Greer, D.M., Greenberg, S.M., Kinney, H.C., Folkerth, R.D. Neuroanatomic connectivity of the human ascending arousal system critical to consciousness and its disorders. *J Neuropathol Exp Neurol*. 2012;71(6):531-46.
+ 
+[^7]: Diedrichsen, J., Balsters, J.H., Flavell, J., Cussans, E., Ramnani, N. A probabilistic MR atlas of the human cerebellum.  *Neuroimage*. 2009;46(1):39-46.
+ 
+[^8]: Schaefer, A., Kong, R., Gordon, E.M., Laumann, T.O., Zuo, X.N., Holmes, A.J., Eickhoff, S.B., Yeo, B.T.T. Local-Global Parcellation of the Human Cerebral Cortex from Intrinsic Functional Connectivity MRI. *Cereb Cortex*. 2018;28(9):3095-3114.
+ 
+[^9]: Fonov, V., Evans, A.C., Botteron, K., Almli, C.R., McKinstry, R.C., Collins, D.L. Brain Development Cooperative Group. Unbiased average age-appropriate atlases for pediatric studies. *Neuroimage*. 2011;54(1):313-27.
+ 
+[^10]: Jenkinson, M., Bannister, P., Brady, J.M. and Smith, S.M. Improved Optimisation for the Robust and Accurate Linear Registration and Motion Correction of Brain Images. *NeuroImage*. 2002;17(2), 825-841.
