@@ -1,12 +1,14 @@
 #!/bin/bash
+
 # This script takes a list of ROIs (code/ROI_FILE), and creates the new atlas files.
+
 
 # A volume of 0s.
 ${FSLDIR}/bin/fslmaths ${TEMPLATE_T1} -mul 0 ${TEMP_DIR}/zero
 
 # The output atlas files
-new_atlas_3d=${ROOTDIR}/${ATLAS_NAME_3D}
-new_atlas_4d=${ROOTDIR}/${ATLAS_NAME_4D}
+new_atlas_3d=${ROOTDIR}/${ATLAS_NAME_3D}.nii.gz
+new_atlas_4d=${ROOTDIR}/${ATLAS_NAME_4D}.nii.gz
 ${FSLDIR}/bin/imcp ${TEMP_DIR}/zero ${new_atlas_3d}
 ${FSLDIR}/bin/imcp ${TEMP_DIR}/zero ${new_atlas_4d}
 echo "Creating 3D atlas: ${new_atlas_3d}"
@@ -16,13 +18,12 @@ echo "Creating 4D atlas: ${new_atlas_4d}"
 my_atlas_LUT=${ROOTDIR}/${LUT_TABLE_NAME}.txt
 rm -rf ${my_atlas_LUT}
 echo "0 Unknown 0 0 0 0" > ${my_atlas_LUT}
-
 # Number of ROIs to create
 n_rois=$(cat ${ROI_FILE} | wc -l)
-new_roi=${TEMP_DIR}/new_roi
-${FSLDIR}/bin/imcp ${TEMP_DIR}/zero ${new_roi}
+new_roi=${TEMP_DIR}/new_roi.nii.gz
+${FSLDIR}/bin/imcp ${TEMP_DIR}/zero.nii.gz ${new_roi}
 
-for ((r=1 ; r<=${n_rois} ; r++)) ; do
+for (( r=1; r<=${n_rois}; r++ )) ; do
    # Init new_roi with 0s
    ${FSLDIR}/bin/fslmaths ${new_roi} -mul 0 ${new_roi}
    # Break next ROI definition line
@@ -34,9 +35,15 @@ for ((r=1 ; r<=${n_rois} ; r++)) ; do
    # When combining multiple ROIs into one larger ROI
    for c in $(echo ${roi_comp} | (awk -F+ 'BEGIN {OFS="\n"} $1=$1 {print $0}')) ; do
       roi_cset=$(echo ${c} | awk -F_ '{print $1}')
+      roi_cset=${roi_cset/$'\r'/}
       roi_cnam=$(echo ${c} | awk -F_ '{print $2}')
+      roi_cnam=${roi_cnam/$'\r'/}
+      export roi_cset roi_cnam
+
       echo "-- Adding to ROI ${roi_numb} ${roi_name}: ${roi_cset}_${roi_cnam}"
-      ${FSLDIR}/bin/fslmaths ${new_roi} -add ${ROOTDIR}/atlases/${roi_cset}/isolated/${roi_cset}_${roi_cnam} ${new_roi}
+      ROIDIR=$(echo "${ROOTDIR}/atlases/${roi_cset}/isolated/${roi_cset}_${roi_cnam}")
+      ${FSLDIR}/bin/fslmaths ${new_roi} -add ${ROIDIR} ${new_roi}
+
    done
 
    # Init 4D atlas file with first ROI
@@ -50,8 +57,9 @@ for ((r=1 ; r<=${n_rois} ; r++)) ; do
    ${FSLDIR}/bin/fslmaths ${new_roi} -mul ${roi_numb} -add ${new_atlas_3d} ${new_atlas_3d}
 
    # Add new ROI to color lookup table
-   echo "${roi_numb} ${roi_name} $(( (${r}*3) % 255)) $(( (${r}*7) % 255)) $(( (${r}*11) % 255)) 0" >> ${my_atlas_LUT}
+   echo "${roi_numb} ${roi_name} $(( (${r}*3) % 255)) $(( (${r}*7) % 255)) $(( (${r}*11) % 255)) 1" >> ${my_atlas_LUT}
 done
+
 
 echo "============================="
 echo "Summary:"
